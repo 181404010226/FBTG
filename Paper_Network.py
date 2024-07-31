@@ -55,18 +55,17 @@ class BinaryConvMixer(nn.Module):
             print("Detailed output values:")
             for i, batch in enumerate(x):
                 print(f"Batch {i}: {batch.tolist()}")
-        x = torch.sigmoid(x)
         return x
 
 
-IndustrialVsNaturalNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-LandVsSkyNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-PlaneVsShipNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-CarVsTruckNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-FourLeggedVsOthersNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=3)
-CatVsDogNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-DeerVsHorseNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-BirdVsFrogNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+IndustrialVsNaturalNet = lambda: MaxxVit(model_cfgs['astroformer_0'], num_classes=2)
+LandVsSkyNet = lambda: MaxxVit(model_cfgs['astroformer_0'], num_classes=2)
+PlaneVsShipNet = lambda: MaxxVit(model_cfgs['astroformer_0'], num_classes=2)
+CarVsTruckNet = lambda: MaxxVit(model_cfgs['astroformer_0'], num_classes=2)
+FourLeggedVsOthersNet = lambda: MaxxVit(model_cfgs['astroformer_0'], num_classes=3)
+CatVsDogNet = lambda: MaxxVit(model_cfgs['astroformer_0'], num_classes=2)
+DeerVsHorseNet = lambda: MaxxVit(model_cfgs['astroformer_0'], num_classes=2)
+BirdVsFrogNet = lambda: MaxxVit(model_cfgs['astroformer_0'], num_classes=2)
 
 # Replace all specific network classes with BinaryConvMixer
 # IndustrialVsNaturalNet = lambda: BinaryConvMixer("",256,8,5,1)

@@ -24,8 +24,8 @@ root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
 # 初始化模型并移至GPU
 model = SequentialDecisionTree().to(device)
 # model.load_state_dict(torch.load("best_models/model_epoch_932_acc_0.9686.pth"))
-# if num_gpus > 1:
-#     model = torch.nn.DataParallel(model)
+if num_gpus > 1:
+    model = torch.nn.DataParallel(model)
 
 optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
 # optimizer.load_state_dict(torch.load("best_models/optimizer_epoch_180_acc_0.9373.pth"))
@@ -66,12 +66,10 @@ for epoch in range(global_vars.num_epochs):
         with autocast():
 
             outputs = model(data)
-
-            predicted_probs = global_vars.log_image_probabilities[:len(data)]
               
             # 计算 batch loss
             # 使用sigmoid输出直接计算概率
-            normalized_probs = predicted_probs / predicted_probs.sum(dim=1, keepdim=True)
+            normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
             batch_loss = torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
 
             #batch_loss = torch.sum(-target * predicted_probs.log(), dim=-1).mean()
@@ -89,7 +87,7 @@ for epoch in range(global_vars.num_epochs):
                 raise ValueError("NaN detected in loss calculation")
 
             # 统计训练正确率（如果需要）
-            predicted_labels = predicted_probs.argmax(dim=1)
+            predicted_labels = outputs.argmax(dim=1)
             train_correct += (predicted_labels == target.argmax(dim=1)).sum().item()
             train_total += len(target)
 
@@ -126,13 +124,10 @@ for epoch in range(global_vars.num_epochs):
     with torch.no_grad():
         for batch_idx, (data, target) in enumerate(valid_data):
             data, target = data.to(device), target.to(device)
-            model(data)
-            
-            # 获取当前批次的预测对数概率
-            predicted_probs = global_vars.log_image_probabilities[:len(data)]
+            outputs = model(data)
 
             # 获取预测标签（在对数空间中，最大值对应原空间的最大概率）
-            predicted_labels = predicted_probs.argmax(dim=1)
+            predicted_labels = outputs.argmax(dim=1)
             
             # 计算正确预测的数量
             total_correct += (predicted_labels == target).sum().item()
