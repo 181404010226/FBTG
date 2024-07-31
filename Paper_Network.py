@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import os
+from astroformer import MaxxVit, model_cfgs
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -57,15 +58,25 @@ class BinaryConvMixer(nn.Module):
         x = torch.sigmoid(x)
         return x
 
+
+IndustrialVsNaturalNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+LandVsSkyNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+PlaneVsShipNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+CarVsTruckNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+FourLeggedVsOthersNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=3)
+CatVsDogNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+DeerVsHorseNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+BirdVsFrogNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+
 # Replace all specific network classes with BinaryConvMixer
-IndustrialVsNaturalNet = lambda: BinaryConvMixer("",256,8,5,1)
-LandVsSkyNet = lambda: BinaryConvMixer("",256,8,5,1)
-PlaneVsShipNet = lambda: BinaryConvMixer("",256,8,5,1)
-CarVsTruckNet = lambda: BinaryConvMixer("",256,8,5,1)
-FourLeggedVsOthersNet = lambda: BinaryConvMixer("",256,8,5,1,3)
-CatVsDogNet = lambda: BinaryConvMixer("",256,8,5,1)
-DeerVsHorseNet = lambda: BinaryConvMixer("",256,8,5,1)
-BirdVsFrogNet = lambda: BinaryConvMixer("",256,8,5,1)
+# IndustrialVsNaturalNet = lambda: BinaryConvMixer("",256,8,5,1)
+# LandVsSkyNet = lambda: BinaryConvMixer("",256,8,5,1)
+# PlaneVsShipNet = lambda: BinaryConvMixer("",256,8,5,1)
+# CarVsTruckNet = lambda: BinaryConvMixer("",256,8,5,1)
+# FourLeggedVsOthersNet = lambda: BinaryConvMixer("",256,8,5,1,3)
+# CatVsDogNet = lambda: BinaryConvMixer("",256,8,5,1)
+# DeerVsHorseNet = lambda: BinaryConvMixer("",256,8,5,1)
+# BirdVsFrogNet = lambda: BinaryConvMixer("",256,8,5,1)
 
 # IndustrialVsNaturalNet = lambda: BinaryConvMixer("data/train工业vx自然/model_0.9881_epoch82.pth",256,8,5,2)
 # LandVsSkyNet = lambda: BinaryConvMixer("data/train飞机轮船vs汽车卡车/model_0.9888_epoch110.pth",256,8,5,2)

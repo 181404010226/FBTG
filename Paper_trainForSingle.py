@@ -14,10 +14,14 @@ from torch.cuda.amp import autocast, GradScaler
 import torch.nn.functional as F
 
 if __name__ == "__main__":
+        # 检查可用的GPU数量
+    num_gpus = torch.cuda.device_count()
+    print(f"Number of available GPUs: {num_gpus}")
 
-    # 检查是否有可用的GPU
+    # 使用所有可用的GPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
+
     root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
     save_path = os.path.join("/hy-tmp/best_models")
 
@@ -26,7 +30,11 @@ if __name__ == "__main__":
     # model = ResNet14({'in_channels': 3, 'out_channels': 10, 'activation': 'CosLU'}).to(device)
     # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
-    model = MaxxVit(model_cfgs['astroformer_1'], num_classes=10).to(device)
+    model = MaxxVit(model_cfgs['astroformer_3'], num_classes=10).to(device)
+        # 使用DataParallel包装模型
+    if num_gpus > 1:
+        model = torch.nn.DataParallel(model)
+
 
     optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
 
@@ -119,7 +127,12 @@ if __name__ == "__main__":
 
             # 保存前十个最佳模型
             if len(best_models) < 10 or accuracy > min(best_accuracies):
-                model_state = model.state_dict()
+                # 保存模型和优化器
+                if isinstance(model, torch.nn.DataParallel):
+                    model_state = model.module.state_dict()
+                else:
+                    model_state = model.state_dict()
+                    
                 if len(best_models) == 10:
                     # 移除准确率最低的模型
                     min_acc_index = best_accuracies.index(min(best_accuracies))
