@@ -7,6 +7,9 @@ from torchvision import datasets, transforms
 from Paper_global_vars import global_vars
 from torchvision.transforms import Resize
 from pprint import pprint
+import torch.distributed as dist
+from torch.utils.data.distributed import DistributedSampler
+
 
 
 # 设置随机种子
@@ -58,52 +61,61 @@ root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
 trainset = datasets.CIFAR10(root=root, train=True, download=True, transform=None)
 testset = datasets.CIFAR10(root=root, train=False, download=True, transform=None)
 
-# 创建训练数据加载器
-loader_train = create_loader(
-    trainset,
-    input_size=data_config['input_size'],
-    batch_size=global_vars.train_batch_size,  # -b 256
-    is_training=True,
-    use_prefetcher=False,
-    no_aug=False,
-    re_prob=0.25,  # --reprob 0.25
-    re_mode='pixel',  # --remode pixel
-    re_count=1,
-    scale=(0.75, 1.0),  # --scale 0.75 1.0
-    ratio=(3./4., 4./3.),
-    hflip=0.5,
-    vflip=0.,
-    color_jitter=0.4,
-    auto_augment='rand-m9-mstd0.5-inc1',  # --aa rand-m9-mstd0.5-inc1
-    num_aug_splits=0,
-    interpolation=data_config['interpolation'],
-    mean=data_config['mean'],
-    std=data_config['std'],
-    num_workers=8,  # -j 8
-    distributed=False,
-    crop_pct=data_config['crop_pct'],   
-    collate_fn=collate_mixup_fn,  # 使用新的 collate_fn
-    use_multi_epochs_loader=False,
-    worker_seeding='all',  
-    pin_memory=True,
-)
 
+# 修改创建训练数据加载器的部分
+def create_train_loader(distributed=False):
+    global loader_train
+    
+    loader_train = create_loader(
+        trainset,
+        input_size=data_config['input_size'],
+        batch_size=global_vars.train_batch_size,
+        is_training=True,
+        use_prefetcher=False,
+        no_aug=False,
+        re_prob=0.25,
+        re_mode='pixel',
+        re_count=1,
+        scale=(0.75, 1.0),
+        ratio=(3./4., 4./3.),
+        hflip=0.5,
+        vflip=0.,
+        color_jitter=0.4,
+        auto_augment='rand-m9-mstd0.5-inc1',
+        num_aug_splits=0,
+        interpolation=data_config['interpolation'],
+        mean=data_config['mean'],
+        std=data_config['std'],
+        num_workers=8,
+        distributed=distributed,
+        crop_pct=data_config['crop_pct'],   
+        collate_fn=collate_mixup_fn,
+        use_multi_epochs_loader=False,
+        worker_seeding='all',  
+        pin_memory=True
+    )
+    return loader_train
 
-# 使用 create_loader 创建数据加载器
-valid_data = create_loader(
-    testset,
-    input_size=data_config['input_size'],
-    batch_size=global_vars.test_batch_size,
-    is_training=False,
-    use_prefetcher=False,  # 根据需要调整
-    interpolation=data_config['interpolation'],
-    mean=data_config['mean'],
-    std=data_config['std'],
-    num_workers=8,  # 根据需要调整
-    distributed=False,  # 根据需要调整
-    crop_pct=data_config['crop_pct'],
-    pin_memory=True,  # 根据需要调整
-)
+# 修改创建验证数据加载器的部分
+def create_valid_loader(distributed=False):
+    global valid_data
+    
+    valid_data = create_loader(
+        testset,
+        input_size=data_config['input_size'],
+        batch_size=global_vars.test_batch_size,
+        is_training=False,
+        use_prefetcher=False,
+        interpolation=data_config['interpolation'],
+        mean=data_config['mean'],
+        std=data_config['std'],
+        num_workers=8,
+        distributed=distributed,
+        crop_pct=data_config['crop_pct'],
+        pin_memory=True
+    )
+    return valid_data
+
 
 
 if __name__ == "__main__":
