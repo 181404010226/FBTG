@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
         if dist.get_rank() == 0:
             # 输出训练阶段正确率
-            train_accuracy = train_correct.item() / train_total.item() if train_total.item() > 0 else 0
+            train_accuracy = train_correct / train_total if train_total > 0 else 0
             print(f"Epoch {epoch+1}/{global_vars.num_epochs} - Train Accuracy: {train_accuracy:.4f}")
 
         if dist.get_rank() == 0:
