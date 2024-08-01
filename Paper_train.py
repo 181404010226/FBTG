@@ -75,15 +75,15 @@ for epoch in range(global_vars.num_epochs):
             #batch_loss = torch.sum(-target * predicted_probs.log(), dim=-1).mean()
 
             if torch.isnan(batch_loss):
-                nan_samples = torch.isnan(torch.sum(-target * predicted_probs.log(), dim=-1))
+                nan_samples = torch.isnan(torch.sum(-target * outputs.log(), dim=-1))
                 print("NaN detected in loss calculation!")
                 print("Samples causing NaN:")
                 for i in range(len(nan_samples)):
                     if nan_samples[i]:
                         print(f"Sample {i}:")
                         print(f"  Target: {target[i]}")
-                        print(f"  Predicted probabilities: {predicted_probs[i]}")
-                        print(f"  Log probabilities: {predicted_probs[i].log()}")
+                        print(f"  Predicted probabilities: {outputs[i]}")
+                        print(f"  Log probabilities: {outputs[i].log()}")
                 raise ValueError("NaN detected in loss calculation")
 
             # 统计训练正确率（如果需要）
