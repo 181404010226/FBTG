@@ -92,7 +92,7 @@ def create_train_loader(distributed=False):
         collate_fn=collate_mixup_fn,
         use_multi_epochs_loader=False,
         worker_seeding='all',  
-        pin_memory=True
+        pin_memory=False
     )
     return loader_train
 
@@ -112,7 +112,7 @@ def create_valid_loader(distributed=False):
         num_workers=8,
         distributed=distributed,
         crop_pct=data_config['crop_pct'],
-        pin_memory=True
+        pin_memory=False
     )
     return valid_data
 

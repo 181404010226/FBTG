@@ -4,9 +4,7 @@ from torch import optim
 import torch.nn.functional as F
 from astroformer import MaxxVit, model_cfgs
 import os
-import numpy as np
-import random
-import csv
+import gc
 import timm
 from datetime import datetime
 from torch.cuda.amp import autocast, GradScaler
@@ -15,6 +13,8 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data.distributed import DistributedSampler
 from Paper_DataSet import create_train_loader, create_valid_loader
+from torch.nn.utils import parameters_to_vector, vector_to_parameters
+import psutil 
 
 
 if __name__ == "__main__":
@@ -22,24 +22,19 @@ if __name__ == "__main__":
 
     loader_train = create_train_loader(distributed=True)
     valid_data = create_valid_loader(distributed=True)
-    
     # Set the device
     local_rank = int(os.environ["LOCAL_RANK"])
     device = torch.device(f"cuda:{local_rank}")
     torch.cuda.set_device(device)
 
-        # 检查可用的GPU数量
+    # 检查可用的GPU数量
     num_gpus = torch.cuda.device_count()
     print(f"Number of available GPUs: {num_gpus}")
-
     # 使用所有可用的GPU
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
     root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
     save_path = os.path.join("/hy-tmp/best_models")
-
-    train_sampler = DistributedSampler(loader_train.dataset)
 
     # 初始化模型并移至GPU
     # model = SequentialDecisionTree().to(device)
@@ -70,7 +65,6 @@ if __name__ == "__main__":
     scaler = GradScaler()
 
     for epoch in range(global_vars.num_epochs):
-        train_sampler.set_epoch(epoch)
         # 训练阶段
         model.train()
 
@@ -81,7 +75,7 @@ if __name__ == "__main__":
 
         for batch_idx, (data, target) in enumerate(loader_train):
             data, target = data.to(device), target.to(device)
-            
+
             with autocast():
                 outputs = model(data)
                 batch_loss = torch.sum(-target *F.log_softmax(outputs, dim=-1), dim=-1).mean()
@@ -93,6 +87,7 @@ if __name__ == "__main__":
 
             # 使用 scaler 来缩放损失并执行反向传播
             scaler.scale(batch_loss).backward()
+
             # 添加梯度裁剪
             scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
@@ -101,9 +96,8 @@ if __name__ == "__main__":
             scaler.update()
             optimizer.zero_grad()
 
-            batch_losses.append(batch_loss.item())
-
             if dist.get_rank() == 0:
+                batch_losses.append(batch_loss.item())
                 # 打印每10个batch的平均loss和学习率
                 if (batch_idx + 1) % 10 == 0:
                     avg_loss = sum(batch_losses[-10:]) / len(batch_losses[-10:])
@@ -111,11 +105,12 @@ if __name__ == "__main__":
                     print(f"Learning rate: {scheduler.get_last_lr()[0]:.6f}")
                     batch_losses = []  # Reset the list after printing
 
-        scheduler.step()
 
+        scheduler.step()
+        
         # 输出训练阶段正确率
         train_accuracy = train_correct / train_total if train_total > 0 else 0
-        print(f"Epoch {epoch+1}/{global_vars.num_epochs} - Train Accuracy: {train_accuracy:.4f}")
+        print(f"Epoch {epoch+1}/{global_vars.num_epochs} - Train Accuracy: {train_accuracy:.4f}({train_correct}/{train_total})")
 
         # 在所有进程上进行验证
         model.eval()
@@ -136,16 +131,18 @@ if __name__ == "__main__":
 
         if dist.get_rank() == 0:
             accuracy = total_correct.item() / total_samples.item()
-            print(f"Test Accuracy: {accuracy:.4f}")
+            print(f"Test Accuracy: {accuracy:.4f}({total_correct.item()}/{total_samples.item()})")
 
             # 保存前十个最佳模型
             if len(best_models) < 10 or accuracy > min(best_accuracies):
                 # 保存模型和优化器
-                if isinstance(model, torch.nn.DataParallel):
-                    model_state = model.module.state_dict()
-                else:
-                    model_state = model.state_dict()
-                    
+                checkpoint = {
+                    'model_state': model.state_dict(),
+                    'optimizer_state': optimizer.state_dict(),
+                    'accuracy': accuracy,
+                    'epoch': epoch + 1
+                }
+                
                 if len(best_models) == 10:
                     # 移除准确率最低的模型
                     min_acc_index = best_accuracies.index(min(best_accuracies))
@@ -153,14 +150,14 @@ if __name__ == "__main__":
                     
                     # 删除文件系统中的模型文件
                     for filename in os.listdir(save_path):
-                        if filename.endswith(f"acc_{min_acc:.4f}.pth"):
+                        if filename.startswith("checkpoint_") and filename.endswith(f"acc_{min_acc:.4f}.pth"):
                             os.remove(os.path.join(save_path, filename))
                             print(f"Removed file: {filename}")
                     
                     best_models.pop(min_acc_index)
                     best_accuracies.pop(min_acc_index)
                 
-                best_models.append(model_state)
+                best_models.append(checkpoint)
                 best_accuracies.append(accuracy)
                 
                 # 按准确率降序排序
@@ -170,31 +167,23 @@ if __name__ == "__main__":
                 best_accuracies = list(best_accuracies)
                 
                 # 保存模型和优化器
-                save_path_model = os.path.join(save_path, f"model_epoch_{epoch+1}_acc_{accuracy:.4f}.pth")
-                save_path_optimizer = os.path.join(save_path, f"optimizer_epoch_{epoch+1}_acc_{accuracy:.4f}.pth")
+                save_path_checkpoint = os.path.join(save_path, f"checkpoint_epoch_{epoch+1}_acc_{accuracy:.4f}.pth")
                 os.makedirs(save_path, exist_ok=True)
-                torch.save(model_state, save_path_model)
-                torch.save(optimizer.state_dict(), save_path_optimizer)
-                print(f"Saved model to {save_path_model}")
-                print(f"Saved optimizer to {save_path_optimizer}")
+                torch.save(checkpoint, save_path_checkpoint)
+                print(f"Saved checkpoint to {save_path_checkpoint}")
 
                 # 训练结束后，打印最佳模型信息
                 print("\nTop 10 Best Models:")
-                for i, (_, acc) in enumerate(zip(best_models, best_accuracies), 1):
-                    print(f"{i}. Accuracy: {acc:.4f} ")
+                for i, checkpoint in enumerate(best_models, 1):
+                    print(f"{i}. Epoch: {checkpoint['epoch']}, Accuracy: {checkpoint['accuracy']:.4f}")
 
+        
+        gc.collect()
+        torch.cuda.empty_cache()
         print(f"Rank {dist.get_rank()} reached the barrier.")
         dist.barrier()
         print(f"Rank {dist.get_rank()} passed the barrier.")
 
-        # 广播是否继续训练的信号
-        continue_training = torch.tensor([epoch + 1 < global_vars.num_epochs], device=device)
-        dist.broadcast(continue_training, src=0)
-        print(f"Rank {dist.get_rank()} received continue_training signal: {continue_training.item()}")
-
-        if not continue_training.item():
-            print(f"Rank {dist.get_rank()} is breaking the loop.")
-            break
 
     # 清理
     dist.destroy_process_group()
