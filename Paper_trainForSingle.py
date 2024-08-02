@@ -34,7 +34,11 @@ if __name__ == "__main__":
     print(f"Using device: {device}")
 
     root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
-    save_path = os.path.join("/hy-tmp/best_models")
+    # 检查/hy-tmp是否存在
+    if os.path.exists("/hy-tmp"):
+        save_path = os.path.join("/hy-tmp/best_models")
+    else:
+        save_path = os.path.join("/root/autodl-tmp")
 
     # 初始化模型并移至GPU
     # model = SequentialDecisionTree().to(device)
