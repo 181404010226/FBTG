@@ -15,23 +15,29 @@ class Residual(nn.Module):
         return self.fn(x) + x
 
 def ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=2, n_classes=2):
+    layers = []
+    current_dim = dim
+    for i in range(depth):
+        layers.append(nn.Sequential(
+            Residual(nn.Sequential(
+                nn.Conv2d(current_dim, current_dim, kernel_size, groups=current_dim, padding="same"),
+                nn.GELU(),
+                nn.BatchNorm2d(current_dim)
+            )),
+            nn.Conv2d(current_dim, current_dim//2, kernel_size=1),
+            nn.GELU(),
+            nn.BatchNorm2d(current_dim//2)
+        ))
+        current_dim = current_dim//2
+    
     return nn.Sequential(
-        nn.Conv2d(3, dim, kernel_size=patch_size, stride=patch_size),
+        nn.Conv2d(3, dim, kernel_size=kernel_size, stride=patch_size),
         nn.GELU(),
         nn.BatchNorm2d(dim),
-        *[nn.Sequential(
-                Residual(nn.Sequential(
-                    nn.Conv2d(dim, dim, kernel_size, groups=dim, padding="same"),
-                    nn.GELU(),
-                    nn.BatchNorm2d(dim)
-                )),
-                nn.Conv2d(dim, dim, kernel_size=1),
-                nn.GELU(),
-                nn.BatchNorm2d(dim)
-        ) for i in range(depth)],
+        *layers,
         nn.AdaptiveAvgPool2d((1,1)),
         nn.Flatten(),
-        nn.Linear(dim, n_classes)
+        nn.Linear(current_dim, n_classes)
     )
 
 class BinaryConvMixer(nn.Module):
@@ -58,24 +64,23 @@ class BinaryConvMixer(nn.Module):
         return x
 
 
-IndustrialVsNaturalNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-LandVsSkyNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-PlaneVsShipNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-CarVsTruckNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-FourLeggedVsOthersNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=3)
-CatVsDogNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-DeerVsHorseNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
-BirdVsFrogNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+# IndustrialVsNaturalNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+# LandVsSkyNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+# PlaneVsShipNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+# CarVsTruckNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+# FourLeggedVsOthersNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=3)
+# CatVsDogNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+# DeerVsHorseNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
+# BirdVsFrogNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
 
-# Replace all specific network classes with BinaryConvMixer
-# IndustrialVsNaturalNet = lambda: BinaryConvMixer("",256,8,5,1)
-# LandVsSkyNet = lambda: BinaryConvMixer("",256,8,5,1)
-# PlaneVsShipNet = lambda: BinaryConvMixer("",256,8,5,1)
-# CarVsTruckNet = lambda: BinaryConvMixer("",256,8,5,1)
-# FourLeggedVsOthersNet = lambda: BinaryConvMixer("",256,8,5,1,3)
-# CatVsDogNet = lambda: BinaryConvMixer("",256,8,5,1)
-# DeerVsHorseNet = lambda: BinaryConvMixer("",256,8,5,1)
-# BirdVsFrogNet = lambda: BinaryConvMixer("",256,8,5,1)
+IndustrialVsNaturalNet = lambda: BinaryConvMixer("",256,6,5,1)
+LandVsSkyNet = lambda: BinaryConvMixer("",256,6,5,1)
+PlaneVsShipNet = lambda: BinaryConvMixer("",256,6,5,1)
+CarVsTruckNet = lambda: BinaryConvMixer("",256,6,5,1)
+FourLeggedVsOthersNet = lambda: BinaryConvMixer("",256,6,5,1,3)
+CatVsDogNet = lambda: BinaryConvMixer("",256,6,5,1)
+DeerVsHorseNet = lambda: BinaryConvMixer("",256,6,5,1)
+BirdVsFrogNet = lambda: BinaryConvMixer("",256,6,5,1)
 
 # IndustrialVsNaturalNet = lambda: BinaryConvMixer("data/train工业vx自然/model_0.9881_epoch82.pth",256,8,5,2)
 # LandVsSkyNet = lambda: BinaryConvMixer("data/train飞机轮船vs汽车卡车/model_0.9888_epoch110.pth",256,8,5,2)
@@ -100,3 +105,22 @@ def get_network(node_name):
         "Bird vs Frog": BirdVsFrogNet
     }
     return networks[node_name]()
+
+
+from torchsummary import summary
+
+if __name__ == "__main__":
+    networks = [
+        ("IndustrialVsNatural", IndustrialVsNaturalNet()),
+        ("LandVsSky", LandVsSkyNet()),
+        ("PlaneVsShip", PlaneVsShipNet()),
+        ("CarVsTruck", CarVsTruckNet()),
+        ("FourLeggedVsOthers", FourLeggedVsOthersNet()),
+        ("CatVsDog", CatVsDogNet()),
+        ("DeerVsHorse", DeerVsHorseNet()),
+        ("BirdVsFrog", BirdVsFrogNet())
+    ]
+
+    for name, net in networks:
+        print(f"\nCalculating parameters for {name}:")
+        summary(net, (3, 32, 32))  # Assuming input size is 3x32x32, adjust if needed
