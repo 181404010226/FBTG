@@ -11,6 +11,7 @@ from torch.cuda.amp import autocast, GradScaler
 import torch.nn.functional as F
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
+from Paper_Tree import SequentialDecisionTree
 from torch.utils.data.distributed import DistributedSampler
 from Paper_DataSet import create_train_loader, create_valid_loader
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
@@ -45,7 +46,8 @@ if __name__ == "__main__":
     # model = ResNet14({'in_channels': 3, 'out_channels': 10, 'activation': 'CosLU'}).to(device)
     # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
-    model = MaxxVit(model_cfgs['astroformer_3'], num_classes=10).to(device)
+    # model = MaxxVit(model_cfgs['astroformer_3'], num_classes=10).to(device)
+    model = SequentialDecisionTree().to(device)
     model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
     model = DDP(model, device_ids=[local_rank], output_device=local_rank)
 
@@ -53,7 +55,7 @@ if __name__ == "__main__":
 
     scheduler = optim.lr_scheduler.OneCycleLR(
                 optimizer=optimizer,
-                max_lr=0.0001,
+                max_lr=0.0002,
                 total_steps=global_vars.num_epochs,
                 pct_start=0.3,
                 anneal_strategy='cos',
@@ -83,6 +85,14 @@ if __name__ == "__main__":
             with autocast():
                 outputs = model(data)
                 batch_loss = torch.sum(-target *F.log_softmax(outputs, dim=-1), dim=-1).mean()
+                
+                # 新增判断
+                if isinstance(model, SequentialDecisionTree):
+                    normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
+                    batch_loss = torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
+                else:
+                    batch_loss = torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
+                
 
                 # 统计训练正确率（如果需要）
                 predicted_labels = outputs.argmax(dim=1)
