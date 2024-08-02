@@ -84,7 +84,6 @@ if __name__ == "__main__":
 
             with autocast():
                 outputs = model(data)
-                batch_loss = torch.sum(-target *F.log_softmax(outputs, dim=-1), dim=-1).mean()
                 
                 # 新增判断
                 if isinstance(model, SequentialDecisionTree):
