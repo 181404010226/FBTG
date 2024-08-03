@@ -44,14 +44,14 @@ if __name__ == "__main__":
     # model = ResNet14({'in_channels': 3, 'out_channels': 10, 'activation': 'CosLU'}).to(device)
     # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
-    # model = MaxxVit(model_cfgs['astroformer_3'], num_classes=10).to(device)
-    model = SequentialDecisionTree().to(device)
+    model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10).to(device)
+    # model = SequentialDecisionTree().to(device)
 
     optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
 
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
-        max_lr=0.005,
+        max_lr=0.0005,
         total_steps=global_vars.num_epochs,
         pct_start=0.3,
         anneal_strategy='cos',
