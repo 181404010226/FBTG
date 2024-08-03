@@ -73,14 +73,14 @@ class BinaryConvMixer(nn.Module):
 # DeerVsHorseNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
 # BirdVsFrogNet = lambda: MaxxVit(model_cfgs['astroformer_1'], num_classes=2)
 
-IndustrialVsNaturalNet = lambda: BinaryConvMixer("",256,6,5,1)
-LandVsSkyNet = lambda: BinaryConvMixer("",256,6,5,1)
-PlaneVsShipNet = lambda: BinaryConvMixer("",256,6,5,1)
-CarVsTruckNet = lambda: BinaryConvMixer("",256,6,5,1)
-FourLeggedVsOthersNet = lambda: BinaryConvMixer("",256,6,5,1,3)
-CatVsDogNet = lambda: BinaryConvMixer("",256,6,5,1)
-DeerVsHorseNet = lambda: BinaryConvMixer("",256,6,5,1)
-BirdVsFrogNet = lambda: BinaryConvMixer("",256,6,5,1)
+IndustrialVsNaturalNet = lambda: BinaryConvMixer("",1024,8,5,1)
+LandVsSkyNet = lambda: BinaryConvMixer("",1024,8,5,1)
+PlaneVsShipNet = lambda: BinaryConvMixer("",1024,8,5,1)
+CarVsTruckNet = lambda: BinaryConvMixer("",1024,8,5,1)
+FourLeggedVsOthersNet = lambda: BinaryConvMixer("",1024,8,5,1,3)
+CatVsDogNet = lambda: BinaryConvMixer("",1024,8,5,1)
+DeerVsHorseNet = lambda: BinaryConvMixer("",1024,8,5,1)
+BirdVsFrogNet = lambda: BinaryConvMixer("",1024,8,5,1)
 
 # IndustrialVsNaturalNet = lambda: BinaryConvMixer("data/train工业vx自然/model_0.9881_epoch82.pth",256,8,5,2)
 # LandVsSkyNet = lambda: BinaryConvMixer("data/train飞机轮船vs汽车卡车/model_0.9888_epoch110.pth",256,8,5,2)
@@ -107,9 +107,9 @@ def get_network(node_name):
     return networks[node_name]()
 
 
-from torchsummary import summary
 
 if __name__ == "__main__":
+    from torchsummary import summary
     networks = [
         ("IndustrialVsNatural", IndustrialVsNaturalNet()),
         ("LandVsSky", LandVsSkyNet()),
