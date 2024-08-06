@@ -11,28 +11,27 @@ from torch.cuda.amp import autocast, GradScaler
 import torch.nn.functional as F
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-from Paper_Tree import SequentialDecisionTree
+from Paper_Tree import SequentialDecisionTree, SequentialDecisionTreeCIFAR100
 from torch.utils.data.distributed import DistributedSampler
-from Paper_DataSet import create_train_loader, create_valid_loader
+# from Paper_DataSet import create_train_loader, create_valid_loader
+from Paper_DataSetCIFAR100 import create_train_loader, create_valid_loader
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
+from convmixer import ConvMixer
 import psutil 
 
 
 if __name__ == "__main__":
-    dist.init_process_group(backend='nccl')
+    # dist.init_process_group(backend='nccl')
 
-    loader_train = create_train_loader(distributed=True)
-    valid_data = create_valid_loader(distributed=True)
-    # Set the device
-    local_rank = int(os.environ["LOCAL_RANK"])
-    device = torch.device(f"cuda:{local_rank}")
-    torch.cuda.set_device(device)
+    loader_train = create_train_loader(distributed=False)  # Change to non-distributed
+    valid_data = create_valid_loader(distributed=False)  # Change to non-distributed
 
-    # 检查可用的GPU数量
+    # Use all available GPUs
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     num_gpus = torch.cuda.device_count()
     print(f"Number of available GPUs: {num_gpus}")
-    # 使用所有可用的GPU
     print(f"Using device: {device}")
+
 
     root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
     # 检查/hy-tmp是否存在
@@ -46,10 +45,13 @@ if __name__ == "__main__":
     # model = ResNet14({'in_channels': 3, 'out_channels': 10, 'activation': 'CosLU'}).to(device)
     # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
-    model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10).to(device)
-    # model = SequentialDecisionTree().to(device)
-    model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
-    model = DDP(model, device_ids=[local_rank], output_device=local_rank)
+    # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10)
+    #model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
+    model = SequentialDecisionTreeCIFAR100()
+    model = model.to(device)
+    if num_gpus > 1:
+        model = torch.nn.DataParallel(model)  # Use DataParallel instead of DDP
+
 
     optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
 
@@ -109,14 +111,13 @@ if __name__ == "__main__":
             scaler.update()
             optimizer.zero_grad()
 
-            if dist.get_rank() == 0:
-                batch_losses.append(batch_loss.item())
-                # 打印每10个batch的平均loss和学习率
-                if (batch_idx + 1) % 10 == 0:
-                    avg_loss = sum(batch_losses[-10:]) / len(batch_losses[-10:])
-                    print(f"Batches {batch_idx-8}-{batch_idx+1}/{len(loader_train)}: Avg Loss: {avg_loss:.4f}")
-                    print(f"Learning rate: {scheduler.get_last_lr()[0]:.6f}")
-                    batch_losses = []  # Reset the list after printing
+            batch_losses.append(batch_loss.item())
+            # 打印每10个batch的平均loss和学习率
+            if (batch_idx + 1) % 10 == 0:
+                avg_loss = sum(batch_losses[-10:]) / len(batch_losses[-10:])
+                print(f"Batches {batch_idx-8}-{batch_idx+1}/{len(loader_train)}: Avg Loss: {avg_loss:.4f}")
+                print(f"Learning rate: {scheduler.get_last_lr()[0]:.6f}")
+                batch_losses = []  # Reset the list after printing
 
 
         scheduler.step()
@@ -138,65 +139,52 @@ if __name__ == "__main__":
                 total_correct += (predicted_labels == target).sum()
                 total_samples += len(target)
 
-        # 在所有进程间同步结果
-        dist.all_reduce(total_correct)
-        dist.all_reduce(total_samples)
+        accuracy = total_correct.item() / total_samples.item()
+        print(f"Test Accuracy: {accuracy:.4f}({total_correct.item()}/{total_samples.item()})")
 
-        if dist.get_rank() == 0:
-            accuracy = total_correct.item() / total_samples.item()
-            print(f"Test Accuracy: {accuracy:.4f}({total_correct.item()}/{total_samples.item()})")
+        # 保存前十个最佳模型
+        if len(best_models) < 10 or accuracy > min(best_accuracies):
+            # 保存模型和优化器
+            checkpoint = {
+                'model_state': model.state_dict(),
+                'optimizer_state': optimizer.state_dict(),
+                'accuracy': accuracy,
+                'epoch': epoch + 1
+            }
+            
+            if len(best_models) == 10:
+                # 移除准确率最低的模型
+                min_acc_index = best_accuracies.index(min(best_accuracies))
+                min_acc = best_accuracies[min_acc_index]
+                
+                # 删除文件系统中的模型文件
+                for filename in os.listdir(save_path):
+                    if filename.startswith("checkpoint_") and filename.endswith(f"acc_{min_acc:.4f}.pth"):
+                        os.remove(os.path.join(save_path, filename))
+                        print(f"Removed file: {filename}")
+                
+                best_models.pop(min_acc_index)
+                best_accuracies.pop(min_acc_index)
+            
+            best_models.append(checkpoint)
+            best_accuracies.append(accuracy)
+            
+            # 按准确率降序排序
+            best_models, best_accuracies = zip(*sorted(zip(best_models, best_accuracies), 
+                                                    key=lambda x: x[1], reverse=True))
+            best_models = list(best_models)
+            best_accuracies = list(best_accuracies)
+            
+            # 保存模型和优化器
+            save_path_checkpoint = os.path.join(save_path, f"checkpoint_epoch_{epoch+1}_acc_{accuracy:.4f}.pth")
+            os.makedirs(save_path, exist_ok=True)
+            torch.save(checkpoint, save_path_checkpoint)
+            print(f"Saved checkpoint to {save_path_checkpoint}")
 
-            # 保存前十个最佳模型
-            if len(best_models) < 10 or accuracy > min(best_accuracies):
-                # 保存模型和优化器
-                checkpoint = {
-                    'model_state': model.state_dict(),
-                    'optimizer_state': optimizer.state_dict(),
-                    'accuracy': accuracy,
-                    'epoch': epoch + 1
-                }
-                
-                if len(best_models) == 10:
-                    # 移除准确率最低的模型
-                    min_acc_index = best_accuracies.index(min(best_accuracies))
-                    min_acc = best_accuracies[min_acc_index]
-                    
-                    # 删除文件系统中的模型文件
-                    for filename in os.listdir(save_path):
-                        if filename.startswith("checkpoint_") and filename.endswith(f"acc_{min_acc:.4f}.pth"):
-                            os.remove(os.path.join(save_path, filename))
-                            print(f"Removed file: {filename}")
-                    
-                    best_models.pop(min_acc_index)
-                    best_accuracies.pop(min_acc_index)
-                
-                best_models.append(checkpoint)
-                best_accuracies.append(accuracy)
-                
-                # 按准确率降序排序
-                best_models, best_accuracies = zip(*sorted(zip(best_models, best_accuracies), 
-                                                        key=lambda x: x[1], reverse=True))
-                best_models = list(best_models)
-                best_accuracies = list(best_accuracies)
-                
-                # 保存模型和优化器
-                save_path_checkpoint = os.path.join(save_path, f"checkpoint_epoch_{epoch+1}_acc_{accuracy:.4f}.pth")
-                os.makedirs(save_path, exist_ok=True)
-                torch.save(checkpoint, save_path_checkpoint)
-                print(f"Saved checkpoint to {save_path_checkpoint}")
-
-                # 训练结束后，打印最佳模型信息
-                print("\nTop 10 Best Models:")
-                for i, checkpoint in enumerate(best_models, 1):
-                    print(f"{i}. Epoch: {checkpoint['epoch']}, Accuracy: {checkpoint['accuracy']:.4f}")
+            # 训练结束后，打印最佳模型信息
+            print("\nTop 10 Best Models:")
+            for i, checkpoint in enumerate(best_models, 1):
+                print(f"{i}. Epoch: {checkpoint['epoch']}, Accuracy: {checkpoint['accuracy']:.4f}")
 
         
-        gc.collect()
-        torch.cuda.empty_cache()
-        print(f"Rank {dist.get_rank()} reached the barrier.")
-        dist.barrier()
-        print(f"Rank {dist.get_rank()} passed the barrier.")
 
-
-    # 清理
-    dist.destroy_process_group()

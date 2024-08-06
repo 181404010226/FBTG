@@ -46,7 +46,7 @@ mixup_args = dict(
     switch_prob=0.5,
     mode='batch',
     label_smoothing=0.1,
-    num_classes=10
+    num_classes=100
 )
 
 mixup_fn = Mixup(**mixup_args)
@@ -58,8 +58,8 @@ def collate_mixup_fn(batch):
 
 # 选择数据集
 root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
-trainset = datasets.CIFAR10(root=root, train=True, download=True, transform=None)
-testset = datasets.CIFAR10(root=root, train=False, download=True, transform=None)
+trainset = datasets.CIFAR100(root=root, train=True, download=True, transform=None)
+testset = datasets.CIFAR100(root=root, train=False, download=True, transform=None)
 
 
 # 修改创建训练数据加载器的部分

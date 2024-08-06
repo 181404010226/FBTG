@@ -11,11 +11,15 @@ from torch.cuda.amp import autocast, GradScaler
 import torch.nn.functional as F
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-from Paper_Tree import SequentialDecisionTree
+from Paper_Tree import SequentialDecisionTree, SequentialDecisionTreeCIFAR100
 from torch.utils.data.distributed import DistributedSampler
-from Paper_DataSet import create_train_loader, create_valid_loader
+# from Paper_DataSet import create_train_loader, create_valid_loader
+from Paper_DataSetCIFAR100 import create_train_loader, create_valid_loader
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
+from convmixer import ConvMixer
 import psutil 
+from torch_lr_finder import LRFinder
+import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
@@ -44,14 +48,37 @@ if __name__ == "__main__":
     # model = ResNet14({'in_channels': 3, 'out_channels': 10, 'activation': 'CosLU'}).to(device)
     # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
-    model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10).to(device)
-    # model = SequentialDecisionTree().to(device)
+    # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10).to(device)
+    model = SequentialDecisionTreeCIFAR100().to(device)
 
     optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
 
+    def custom_loss(outputs, target):
+        normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
+        return torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
+
+    # # 使用自定义损失函数
+    # criterion = custom_loss
+
+    # lr_finder = LRFinder(model, optimizer, criterion, device="cuda")
+    # lr_finder.range_test(loader_train,start_lr=0.0000001, end_lr=0.01, num_iter=1000, step_mode="exp")
+
+    # # 绘制学习率vs损失图
+    # fig, ax = plt.subplots()
+    # lr_finder.plot(ax=ax)
+    # plt.savefig('lr_finder_plot.png')
+    # plt.close()
+
+    # # 获取建议的学习率
+    # suggested_lr = lr_finder.suggestion()
+    # print(f"Suggested learning rate: {suggested_lr}")
+
+    # # 重置模型和优化器
+    # lr_finder.reset()
+
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
-        max_lr=0.0005,
+        max_lr=0.005,
         total_steps=global_vars.num_epochs,
         pct_start=0.3,
         anneal_strategy='cos',
