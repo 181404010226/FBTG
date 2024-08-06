@@ -84,7 +84,7 @@ class SequentialDecisionTreeCIFAR100(nn.Module):
         # 第一层节点：区分10个大类
         self.root_node = DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10))
         
-        # 10个节点：每个对应一个大类，区分其下的5个小类
+        # 10个节点：每个对应一个大类，区分其下的10个小类
         self.sub_nodes = nn.ModuleList([
             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10))
             for _ in range(10)
