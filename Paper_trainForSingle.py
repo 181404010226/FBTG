@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
-        max_lr=0.005,
+        max_lr=0.0005,
         total_steps=global_vars.num_epochs,
         pct_start=0.3,
         anneal_strategy='cos',
@@ -106,12 +106,15 @@ if __name__ == "__main__":
             with autocast():
                 outputs = model(data)
                 
-                if isinstance(model, SequentialDecisionTree):
+                if isinstance(model, SequentialDecisionTree) or isinstance(model, SequentialDecisionTreeCIFAR100):
+                    if (epoch==0 and batch_idx==0):
+                        print("SequentialDecisionTree")
                     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
                     batch_loss = torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
                 else:
-                    batch_loss = torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
-
+                    if (epoch==0 and batch_idx==0):
+                        print("single model")
+              
                 predicted_labels = outputs.argmax(dim=1)
                 train_correct += (predicted_labels == target.argmax(dim=1)).sum().item()
                 train_total += len(target)
