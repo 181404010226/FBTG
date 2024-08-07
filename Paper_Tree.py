@@ -24,14 +24,14 @@ class SequentialDecisionTree(nn.Module):
         self.isTree = True
         
         self.nodes = nn.ModuleList([
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[0,1,8,9],[2,3,4,5,6,7]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[0,8],[1,9]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[0],[8]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[1],[9]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=3), judge=[[2,6],[3,5],[4,7]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[2],[6]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[3],[5]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[4],[7]])
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[0,1,8,9],[2,3,4,5,6,7]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[0,8],[1,9]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[0],[8]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[1],[9]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=3), judge=[[2,6],[3,5],[4,7]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[2],[6]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[3],[5]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[4],[7]])
         ])
     
     def forward(self, x):

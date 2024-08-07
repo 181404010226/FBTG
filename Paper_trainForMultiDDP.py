@@ -13,8 +13,7 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from Paper_Tree import SequentialDecisionTree, SequentialDecisionTreeCIFAR100
 from torch.utils.data.distributed import DistributedSampler
-# from Paper_DataSet import create_train_loader, create_valid_loader
-from Paper_DataSetCIFAR100 import create_train_loader, create_valid_loader
+from Paper_DataSetCIFAR import create_train_loader, create_valid_loader
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
 from convmixer import ConvMixer
 import psutil 
@@ -50,7 +49,8 @@ if __name__ == "__main__":
     # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
     # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10)
-    model = SequentialDecisionTreeCIFAR100().to(device)
+    model = SequentialDecisionTree().to(device)
+    # model = SequentialDecisionTreeCIFAR100().to(device)
     model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
     # 在将模型移至GPU之前，先将模型参数转换为同步批归一化
     model = model.to(device)
