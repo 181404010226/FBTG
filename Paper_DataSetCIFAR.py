@@ -30,7 +30,8 @@ cifar10_std = (0.2471, 0.2435, 0.2616)
 
 # 定义数据配置
 data_config = {
-    'input_size': (3, 32, 32),
+    'input_size': (3, 224, 224), #astroformer
+    #'input_size': (3, 32, 32),
     'interpolation': 'bicubic',
     'mean': IMAGENET_DEFAULT_MEAN,
     'std': IMAGENET_DEFAULT_STD,
@@ -80,7 +81,7 @@ def create_train_loader(dataset='cifar10', distributed=False):
         input_size=data_config['input_size'],
         batch_size=global_vars.train_batch_size,
         is_training=True,
-        use_prefetcher=distributed,
+        use_prefetcher=False,
         no_aug=False,
         re_prob=0.25,
         re_mode='pixel',
@@ -121,7 +122,7 @@ def create_valid_loader(dataset='cifar10', distributed=False):
         input_size=data_config['input_size'],
         batch_size=global_vars.test_batch_size,
         is_training=False,
-        use_prefetcher=distributed,
+        use_prefetcher=False,
         interpolation=data_config['interpolation'],
         mean=data_config['mean'],
         std=data_config['std'],

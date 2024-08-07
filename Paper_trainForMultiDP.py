@@ -11,6 +11,7 @@ import torch.nn.functional as F
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from Paper_Tree import SequentialDecisionTree, SequentialDecisionTreeCIFAR100
+from astroformer import MaxxVit, model_cfgs
 from torch.utils.data.distributed import DistributedSampler
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
@@ -56,7 +57,7 @@ if __name__ == "__main__":
 
     scheduler = optim.lr_scheduler.OneCycleLR(
                 optimizer=optimizer,
-                max_lr=0.0025,
+                max_lr=0.00025,
                 total_steps=global_vars.num_epochs,
                 pct_start=0.3,
                 anneal_strategy='cos',
@@ -93,7 +94,7 @@ if __name__ == "__main__":
                     is_tree = model.isTree
 
                 # 新增判断
-                if hasattr(model, 'isTree') and model.isTree:
+                if is_tree:
                     if (epoch==0 and batch_idx==0):
                         print("SequentialDecisionTree")
                     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)

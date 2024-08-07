@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     scheduler = optim.lr_scheduler.OneCycleLR(
                 optimizer=optimizer,
-                max_lr=0.005,
+                max_lr=0.00025,
                 total_steps=global_vars.num_epochs,
                 pct_start=0.3,
                 anneal_strategy='cos',
@@ -96,7 +96,7 @@ if __name__ == "__main__":
                     is_tree = model.isTree
 
                 # 新增判断
-                if hasattr(model, 'isTree') and model.isTree:
+                if is_tree:
                     if (epoch==0 and batch_idx==0):
                         print("SequentialDecisionTree")
                     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
