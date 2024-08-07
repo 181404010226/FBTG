@@ -34,13 +34,10 @@ class SequentialDecisionTree(nn.Module):
         ])
     
     def forward(self, x):
-        node_outputs = [node(x) for node in self.nodes]
-        
-        # 初始化十分类输出张量
         final_outputs = torch.ones(x.size(0), 10, device=x.device)
         
-        # 根据每个节点的输出和judge更新final_outputs
-        for node, outputs in zip(self.nodes, node_outputs):
+        for node in self.nodes:
+            outputs = node(x)
             for i, class_indices in enumerate(node.judge):
                 final_outputs[:, class_indices] *= outputs[:, i].unsqueeze(1)
         
@@ -62,19 +59,16 @@ class SequentialDecisionTree(nn.Module):
 #             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[3],[5]]),
 #             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[4],[7]])
 #         ])
+
+# def forward(self, x):
+#     final_outputs = torch.ones(x.size(0), 10, device=x.device)
     
-#     def forward(self, x):
-#         node_outputs = [node(x) for node in self.nodes]
-        
-#         # 初始化十分类输出张量
-#         final_outputs = torch.ones(x.size(0), 10, device=x.device)
-        
-#         # 根据每个节点的输出和judge更新final_outputs
-#         for node, outputs in zip(self.nodes, node_outputs):
-#             for i, class_indices in enumerate(node.judge):
-#                 final_outputs[:, class_indices] *= outputs[:, i].unsqueeze(1)
-        
-#         return final_outputs
+#     for node in self.nodes:
+#         outputs = node(x)
+#         for i, class_indices in enumerate(node.judge):
+#             final_outputs[:, class_indices] *= outputs[:, i].unsqueeze(1)
+    
+#     return final_outputs
 
 # class SequentialDecisionTreeCIFAR100(nn.Module):
 #     def __init__(self):

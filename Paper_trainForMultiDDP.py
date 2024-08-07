@@ -48,8 +48,11 @@ if __name__ == "__main__":
     # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
     # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10)
-    model = SequentialDecisionTree().to(device)
     # model = SequentialDecisionTreeCIFAR100().to(device)
+    model = SequentialDecisionTree().to(device)
+    # 应用 torch.compile()
+    model = torch.jit.script(model)
+
     model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
     # 在将模型移至GPU之前，先将模型参数转换为同步批归一化
     model = model.to(device)
