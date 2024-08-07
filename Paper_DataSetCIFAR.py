@@ -10,8 +10,6 @@ from pprint import pprint
 import torch.distributed as dist
 from torch.utils.data.distributed import DistributedSampler
 
-
-
 # 设置随机种子
 seed = 42
 torch.manual_seed(seed)
@@ -46,32 +44,43 @@ mixup_args = dict(
     switch_prob=0.5,
     mode='batch',
     label_smoothing=0.1,
-    num_classes=10
+    num_classes=100
 )
-
-mixup_fn = Mixup(**mixup_args)
-
-def collate_mixup_fn(batch):
-    inputs = torch.stack([b[0] for b in batch])
-    targets = torch.tensor([b[1] for b in batch])
-    return mixup_fn(inputs, targets)
 
 # 选择数据集
 root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
-trainset = datasets.CIFAR10(root=root, train=True, download=True, transform=None)
-testset = datasets.CIFAR10(root=root, train=False, download=True, transform=None)
-
+trainset_cifar10 = datasets.CIFAR10(root=root, train=True, download=True, transform=None)
+testset_cifar10 = datasets.CIFAR10(root=root, train=False, download=True, transform=None)
+trainset_cifar100 = datasets.CIFAR100(root=root, train=True, download=True, transform=None)
+testset_cifar100 = datasets.CIFAR100(root=root, train=False, download=True, transform=None)
 
 # 修改创建训练数据加载器的部分
-def create_train_loader(distributed=False):
+def create_train_loader(dataset='cifar10', distributed=False):
     global loader_train
+    
+    if dataset == 'cifar10':
+        trainset = trainset_cifar10
+        num_classes = 10
+    elif dataset == 'cifar100':
+        trainset = trainset_cifar100
+        num_classes = 100
+    else:
+        raise ValueError("Invalid dataset. Choose 'cifar10' or 'cifar100'.")
+    
+    mixup_args['num_classes'] = num_classes
+    mixup_fn = Mixup(**mixup_args)
+
+    def collate_mixup_fn(batch):
+        inputs = torch.stack([b[0] for b in batch])
+        targets = torch.tensor([b[1] for b in batch])
+        return mixup_fn(inputs, targets)
     
     loader_train = create_loader(
         trainset,
         input_size=data_config['input_size'],
         batch_size=global_vars.train_batch_size,
         is_training=True,
-        use_prefetcher=False,
+        use_prefetcher=distributed,
         no_aug=False,
         re_prob=0.25,
         re_mode='pixel',
@@ -97,15 +106,22 @@ def create_train_loader(distributed=False):
     return loader_train
 
 # 修改创建验证数据加载器的部分
-def create_valid_loader(distributed=False):
+def create_valid_loader(dataset='cifar10', distributed=False):
     global valid_data
+    
+    if dataset == 'cifar10':
+        testset = testset_cifar10
+    elif dataset == 'cifar100':
+        testset = testset_cifar100
+    else:
+        raise ValueError("Invalid dataset. Choose 'cifar10' or 'cifar100'.")
     
     valid_data = create_loader(
         testset,
         input_size=data_config['input_size'],
         batch_size=global_vars.test_batch_size,
         is_training=False,
-        use_prefetcher=False,
+        use_prefetcher=distributed,
         interpolation=data_config['interpolation'],
         mean=data_config['mean'],
         std=data_config['std'],
@@ -117,7 +133,6 @@ def create_valid_loader(distributed=False):
     return valid_data
 
 
-
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     import os
@@ -127,7 +142,9 @@ if __name__ == "__main__":
     for batch in range(3):
         # 获取一批训练数据
         # data_iter = iter(loader_train)
-        data_iter = iter(valid_data)
+        loader_train = create_train_loader(dataset='cifar10',distributed=False)
+        # valid_data = create_valid_loader(dataset='cifar10',distributed=False)
+        data_iter = iter(loader_train)
         images, labels = next(data_iter)
 
         # 保存标签

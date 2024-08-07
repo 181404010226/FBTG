@@ -13,8 +13,7 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from Paper_Tree import SequentialDecisionTree, SequentialDecisionTreeCIFAR100
 from torch.utils.data.distributed import DistributedSampler
-# from Paper_DataSet import create_train_loader, create_valid_loader
-from Paper_DataSetCIFAR100 import create_train_loader, create_valid_loader
+from Paper_DataSetCIFAR import create_train_loader, create_valid_loader
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
 from convmixer import ConvMixer
 import psutil 
@@ -47,7 +46,8 @@ if __name__ == "__main__":
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
     # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10)
     #model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
-    model = SequentialDecisionTreeCIFAR100()
+    model = SequentialDecisionTree()
+    #model = SequentialDecisionTreeCIFAR100()
     model = model.to(device)
     if num_gpus > 1:
         model = torch.nn.DataParallel(model)  # Use DataParallel instead of DDP
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     scheduler = optim.lr_scheduler.OneCycleLR(
                 optimizer=optimizer,
-                max_lr=0.0005,
+                max_lr=0.0025,
                 total_steps=global_vars.num_epochs,
                 pct_start=0.3,
                 anneal_strategy='cos',
@@ -86,12 +86,22 @@ if __name__ == "__main__":
 
             with autocast():
                 outputs = model(data)
-                
+
+                # 使用 module 来访问原始模型的方法
+                if isinstance(model, torch.nn.DataParallel):
+                    is_tree = model.module.isTree
+                else:
+                    is_tree = model.isTree
+
                 # 新增判断
-                if isinstance(model, SequentialDecisionTree):
+                if is_tree:
+                    if (epoch==0 and batch_idx==0):
+                        print("SequentialDecisionTree")
                     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
                     batch_loss = torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
                 else:
+                    if (epoch==0 and batch_idx==0):
+                        print("single model")
                     batch_loss = torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
                 
 
@@ -126,7 +136,7 @@ if __name__ == "__main__":
         train_accuracy = train_correct / train_total if train_total > 0 else 0
         print(f"Epoch {epoch+1}/{global_vars.num_epochs} - Train Accuracy: {train_accuracy:.4f}({train_correct}/{train_total})")
 
-        # 在所有进程上进行验证
+        # 进行验证
         model.eval()
         total_correct = torch.zeros(1).to(device)
         total_samples = torch.zeros(1).to(device)
