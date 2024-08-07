@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     scheduler = optim.lr_scheduler.OneCycleLR(
                 optimizer=optimizer,
-                max_lr=0.0005,
+                max_lr=0.0025,
                 total_steps=global_vars.num_epochs,
                 pct_start=0.3,
                 anneal_strategy='cos',
@@ -86,12 +86,22 @@ if __name__ == "__main__":
 
             with autocast():
                 outputs = model(data)
-                
+
+                # 使用 module 来访问原始模型的方法
+                if isinstance(model, torch.nn.DataParallel):
+                    is_tree = model.module.isTree
+                else:
+                    is_tree = model.isTree
+
                 # 新增判断
-                if isinstance(model, SequentialDecisionTree):
+                if is_tree:
+                    if (epoch==0 and batch_idx==0):
+                        print("SequentialDecisionTree")
                     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
                     batch_loss = torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
                 else:
+                    if (epoch==0 and batch_idx==0):
+                        print("single model")
                     batch_loss = torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
                 
 
@@ -126,7 +136,7 @@ if __name__ == "__main__":
         train_accuracy = train_correct / train_total if train_total > 0 else 0
         print(f"Epoch {epoch+1}/{global_vars.num_epochs} - Train Accuracy: {train_accuracy:.4f}({train_correct}/{train_total})")
 
-        # 在所有进程上进行验证
+        # 进行验证
         model.eval()
         total_correct = torch.zeros(1).to(device)
         total_samples = torch.zeros(1).to(device)

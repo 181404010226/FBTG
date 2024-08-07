@@ -23,8 +23,6 @@ import psutil
 if __name__ == "__main__":
 
     dist.init_process_group(backend='nccl')
-    torch.set_num_threads(4)
-
 
     loader_train = create_train_loader(distributed=True)
     valid_data = create_valid_loader(distributed=True)
@@ -62,7 +60,7 @@ if __name__ == "__main__":
 
     scheduler = optim.lr_scheduler.OneCycleLR(
                 optimizer=optimizer,
-                max_lr=0.0005,
+                max_lr=0.005,
                 total_steps=global_vars.num_epochs,
                 pct_start=0.3,
                 anneal_strategy='cos',
@@ -92,11 +90,21 @@ if __name__ == "__main__":
             with autocast():
                 outputs = model(data)
                 
+                # 使用 module 来访问原始模型的方法
+                if isinstance(model, DDP):
+                    is_tree = model.module.isTree
+                else:
+                    is_tree = model.isTree
+
                 # 新增判断
-                if isinstance(model, SequentialDecisionTree):
+                if is_tree:
+                    if (epoch==0 and batch_idx==0):
+                        print("SequentialDecisionTree")
                     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
                     batch_loss = torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
                 else:
+                    if (epoch==0 and batch_idx==0):
+                        print("single model")
                     batch_loss = torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
                 
 

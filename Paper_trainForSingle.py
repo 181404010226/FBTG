@@ -106,7 +106,7 @@ if __name__ == "__main__":
             with autocast():
                 outputs = model(data)
                 
-                if isinstance(model, SequentialDecisionTree) or isinstance(model, SequentialDecisionTreeCIFAR100):
+                if model.isTree:
                     if (epoch==0 and batch_idx==0):
                         print("SequentialDecisionTree")
                     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
@@ -114,6 +114,8 @@ if __name__ == "__main__":
                 else:
                     if (epoch==0 and batch_idx==0):
                         print("single model")
+                    batch_loss = torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
+                
               
                 predicted_labels = outputs.argmax(dim=1)
                 train_correct += (predicted_labels == target.argmax(dim=1)).sum().item()
