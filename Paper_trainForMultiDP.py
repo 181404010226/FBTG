@@ -2,7 +2,6 @@ import torch
 from Paper_global_vars import global_vars
 from torch import optim
 import torch.nn.functional as F
-from astroformer import MaxxVit, model_cfgs
 import os
 import gc
 import timm

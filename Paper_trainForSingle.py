@@ -2,7 +2,6 @@ import torch
 from Paper_global_vars import global_vars
 from torch import optim
 import torch.nn.functional as F
-from astroformer import MaxxVit, model_cfgs
 import os
 import gc
 import timm
@@ -19,7 +18,6 @@ from convmixer import ConvMixer
 import psutil 
 from torch_lr_finder import LRFinder
 import matplotlib.pyplot as plt
-from MUXconv import muxnet_m,muxnet_l
 
 
 
@@ -28,8 +26,8 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    loader_train = create_train_loader(distributed=False)
-    valid_data = create_valid_loader(distributed=False)
+    loader_train = create_train_loader('cifar100',distributed=False)
+    valid_data = create_valid_loader('cifar100',distributed=False)
 
     # 检查可用的GPU数量
     num_gpus = torch.cuda.device_count()
@@ -52,9 +50,9 @@ if __name__ == "__main__":
     # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10).to(device)
     # model = SequentialDecisionTree().to(device)
     # model = muxnet_m(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
-    model = muxnet_l(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
+    # model = muxnet_l(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
 
-    # model = SequentialDecisionTreeCIFAR100().to(device)
+    model = SequentialDecisionTreeCIFAR100().to(device)
 
     optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
 
@@ -85,7 +83,7 @@ if __name__ == "__main__":
 
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
-        max_lr=0.001,
+        max_lr=0.0002,
         total_steps=global_vars.num_epochs,
         pct_start=0.3,
         anneal_strategy='cos',

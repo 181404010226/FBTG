@@ -1,7 +1,7 @@
 import torch
-from Paper_TreeForTest import SequentialDecisionTree
+from Paper_Tree import SequentialDecisionTree
 from Paper_global_vars import global_vars
-from Paper_DataSet import valid_data
+from Paper_DataSetCIFAR import valid_data
 import os
 import shutil
 import numpy as np
