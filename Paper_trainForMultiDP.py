@@ -94,7 +94,7 @@ if __name__ == "__main__":
                     is_tree = model.isTree
 
                 # 新增判断
-                if is_tree:
+                if hasattr(model, 'isTree') and model.isTree:
                     if (epoch==0 and batch_idx==0):
                         print("SequentialDecisionTree")
                     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
@@ -103,7 +103,7 @@ if __name__ == "__main__":
                     if (epoch==0 and batch_idx==0):
                         print("single model")
                     batch_loss = torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
-                
+              
 
                 # 统计训练正确率（如果需要）
                 predicted_labels = outputs.argmax(dim=1)

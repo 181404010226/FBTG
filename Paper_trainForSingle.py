@@ -19,6 +19,8 @@ from convmixer import ConvMixer
 import psutil 
 from torch_lr_finder import LRFinder
 import matplotlib.pyplot as plt
+from MUXconv import muxnet_m,muxnet_l
+
 
 
 if __name__ == "__main__":
@@ -48,14 +50,19 @@ if __name__ == "__main__":
     # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
     # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10).to(device)
-    model = SequentialDecisionTree().to(device)
+    # model = SequentialDecisionTree().to(device)
+    # model = muxnet_m(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
+    model = muxnet_l(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
+
     # model = SequentialDecisionTreeCIFAR100().to(device)
 
     optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
 
-    def custom_loss(outputs, target):
-        normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
-        return torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
+    # def custom_loss(outputs, target):
+    #     # return torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
+              
+    #     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
+    #     return torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
 
     # # 使用自定义损失函数
     # criterion = custom_loss
@@ -78,7 +85,7 @@ if __name__ == "__main__":
 
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
-        max_lr=0.0005,
+        max_lr=0.001,
         total_steps=global_vars.num_epochs,
         pct_start=0.3,
         anneal_strategy='cos',
@@ -106,7 +113,7 @@ if __name__ == "__main__":
             with autocast():
                 outputs = model(data)
                 
-                if model.isTree:
+                if hasattr(model, 'isTree') and model.isTree:
                     if (epoch==0 and batch_idx==0):
                         print("SequentialDecisionTree")
                     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
@@ -115,7 +122,6 @@ if __name__ == "__main__":
                     if (epoch==0 and batch_idx==0):
                         print("single model")
                     batch_loss = torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
-                
               
                 predicted_labels = outputs.argmax(dim=1)
                 train_correct += (predicted_labels == target.argmax(dim=1)).sum().item()
