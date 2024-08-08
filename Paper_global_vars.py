@@ -6,7 +6,7 @@ import torch.nn.functional as F
 class GlobalVars:
     def __init__(self):
         self.num_epochs = 500
-        self.train_batch_size = 32 // torch.cuda.device_count()
+        self.train_batch_size = 128 // torch.cuda.device_count()
         self.test_batch_size = 64
         self.log_image_probabilities = None
 

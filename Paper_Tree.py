@@ -17,22 +17,49 @@ class DecisionNode(nn.Module):
         outputs = torch.sigmoid(outputs)
         return outputs
 
+# class SequentialDecisionTree(nn.Module):
+#     def __init__(self):
+#         super(SequentialDecisionTree, self).__init__()
+#         self.isTree = True
+        
+#         self.nodes = nn.ModuleList([
+#             DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[0,1,8,9],[2,3,4,5,6,7]]),
+#             DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[0,8],[1,9]]),
+#             DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[0],[8]]),
+#             DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[1],[9]]),
+#             DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[2,6],[3,5],[4,7]]),
+#             DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[2],[6]]),
+#             DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[3],[5]]),
+#             DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[4],[7]])
+#         ])
+    
+#     def forward(self, x):
+#         final_outputs = torch.ones(x.size(0), 10, device=x.device)
+        
+#         for node in self.nodes:
+#             outputs = node(x)
+#             for i, class_indices in enumerate(node.judge):
+#                 final_outputs[:, class_indices] *= outputs[:, i].unsqueeze(1)
+        
+#         return final_outputs
+
+
 class SequentialDecisionTree(nn.Module):
     def __init__(self):
         super(SequentialDecisionTree, self).__init__()
         self.isTree = True
         
         self.nodes = nn.ModuleList([
-            DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[0,1,8,9],[2,3,4,5,6,7]]),
-            DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[0,8],[1,9]]),
-            DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[0],[8]]),
-            DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[1],[9]]),
-            DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[2,6],[3,5],[4,7]]),
-            DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[2],[6]]),
-            DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[3],[5]]),
-            DecisionNode(MaxxVit(model_cfgs['astroformer_0']), judge=[[4],[7]])
+            DecisionNode(ConvMixer(dim=256, depth=16, kernel_size=9, patch_size=1, n_classes=2), judge=[[0,1,8,9],[2,3,4,5,6,7]]),
+            DecisionNode(ConvMixer(dim=256, depth=16, kernel_size=9, patch_size=1, n_classes=2), judge=[[0,8],[1,9]]),
+            DecisionNode(ConvMixer(dim=256, depth=16, kernel_size=9, patch_size=1, n_classes=2), judge=[[0],[8]]),
+            DecisionNode(ConvMixer(dim=256, depth=16, kernel_size=9, patch_size=1, n_classes=2), judge=[[1],[9]]),
+            DecisionNode(ConvMixer(dim=256, depth=16, kernel_size=9, patch_size=1, n_classes=3), judge=[[2,6],[3,5],[4,7]]),
+            DecisionNode(ConvMixer(dim=256, depth=16, kernel_size=9, patch_size=1, n_classes=2), judge=[[2],[6]]),
+            DecisionNode(ConvMixer(dim=256, depth=16, kernel_size=9, patch_size=1, n_classes=2), judge=[[3],[5]]),
+            DecisionNode(ConvMixer(dim=256, depth=16, kernel_size=9, patch_size=1, n_classes=2), judge=[[4],[7]])
         ])
-    
+
     def forward(self, x):
         final_outputs = torch.ones(x.size(0), 10, device=x.device)
         
@@ -42,33 +69,6 @@ class SequentialDecisionTree(nn.Module):
                 final_outputs[:, class_indices] *= outputs[:, i].unsqueeze(1)
         
         return final_outputs
-
-
-# class SequentialDecisionTree(nn.Module):
-#     def __init__(self):
-#         super(SequentialDecisionTree, self).__init__()
-#         self.isTree = True
-        
-#         self.nodes = nn.ModuleList([
-#             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[0,1,8,9],[2,3,4,5,6,7]]),
-#             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[0,8],[1,9]]),
-#             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[0],[8]]),
-#             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[1],[9]]),
-#             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=3), judge=[[2,6],[3,5],[4,7]]),
-#             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[2],[6]]),
-#             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[3],[5]]),
-#             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=9, patch_size=1, n_classes=2), judge=[[4],[7]])
-#         ])
-
-# def forward(self, x):
-#     final_outputs = torch.ones(x.size(0), 10, device=x.device)
-    
-#     for node in self.nodes:
-#         outputs = node(x)
-#         for i, class_indices in enumerate(node.judge):
-#             final_outputs[:, class_indices] *= outputs[:, i].unsqueeze(1)
-    
-#     return final_outputs
 
 # class SequentialDecisionTreeCIFAR100(nn.Module):
 #     def __init__(self):

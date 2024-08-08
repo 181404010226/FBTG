@@ -30,8 +30,8 @@ cifar10_std = (0.2471, 0.2435, 0.2616)
 
 # 定义数据配置
 data_config = {
-    'input_size': (3, 224, 224), #astroformer
-    #'input_size': (3, 32, 32),
+    #'input_size': (3, 224, 224), #astroformer
+    'input_size': (3, 32, 32),
     'interpolation': 'bicubic',
     'mean': IMAGENET_DEFAULT_MEAN,
     'std': IMAGENET_DEFAULT_STD,

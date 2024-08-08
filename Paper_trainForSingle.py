@@ -56,30 +56,30 @@ if __name__ == "__main__":
 
     optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
 
-    # def custom_loss(outputs, target):
-    #     # return torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
+    def custom_loss(outputs, target):
+        # return torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
               
-    #     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
-    #     return torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
+        normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
+        return torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
 
-    # # 使用自定义损失函数
-    # criterion = custom_loss
+    # 使用自定义损失函数
+    criterion = custom_loss
 
-    # lr_finder = LRFinder(model, optimizer, criterion, device="cuda")
-    # lr_finder.range_test(loader_train,start_lr=0.0000001, end_lr=0.01, num_iter=1000, step_mode="exp")
+    lr_finder = LRFinder(model, optimizer, criterion, device="cuda")
+    lr_finder.range_test(loader_train,start_lr=0.0000001, end_lr=0.01, num_iter=1000, step_mode="exp")
 
-    # # 绘制学习率vs损失图
-    # fig, ax = plt.subplots()
-    # lr_finder.plot(ax=ax)
-    # plt.savefig('lr_finder_plot.png')
-    # plt.close()
+    # 绘制学习率vs损失图
+    fig, ax = plt.subplots()
+    lr_finder.plot(ax=ax)
+    plt.savefig('lr_finder_plot.png')
+    plt.close()
 
-    # # 获取建议的学习率
-    # suggested_lr = lr_finder.suggestion()
-    # print(f"Suggested learning rate: {suggested_lr}")
+    # 获取建议的学习率
+    suggested_lr = lr_finder.suggestion()
+    print(f"Suggested learning rate: {suggested_lr}")
 
-    # # 重置模型和优化器
-    # lr_finder.reset()
+    # 重置模型和优化器
+    lr_finder.reset()
 
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
