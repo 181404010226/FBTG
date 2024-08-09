@@ -26,8 +26,8 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    loader_train = create_train_loader('cifar100',distributed=False)
-    valid_data = create_valid_loader('cifar100',distributed=False)
+    loader_train = create_train_loader('cifar10',distributed=False)
+    valid_data = create_valid_loader('cifar10',distributed=False)
 
     # 检查可用的GPU数量
     num_gpus = torch.cuda.device_count()
@@ -52,7 +52,8 @@ if __name__ == "__main__":
     # model = muxnet_m(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
     # model = muxnet_l(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
 
-    model = SequentialDecisionTreeCIFAR100().to(device)
+    # model = SequentialDecisionTreeCIFAR100().to(device)
+    model = SequentialDecisionTree().to(device)
 
     optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
 
@@ -83,7 +84,7 @@ if __name__ == "__main__":
 
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
-        max_lr=0.0002,
+        max_lr=global_vars.max_lr,
         total_steps=global_vars.num_epochs,
         pct_start=0.3,
         anneal_strategy='cos',
