@@ -45,20 +45,20 @@ if __name__ == "__main__":
     # 初始化模型并移至GPU
     # model = SequentialDecisionTree().to(device)
     # model = ResNet14({'in_channels': 3, 'out_channels': 10, 'activation': 'CosLU'}).to(device)
-    # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
+    model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
     # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10).to(device)
     # model = SequentialDecisionTree().to(device)
     # model = muxnet_m(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
     # model = muxnet_l(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
 
-    # model = SequentialDecisionTreeCIFAR100().to(device)
-    model = SequentialDecisionTree().to(device)
+    #model = SequentialDecisionTreeCIFAR100().to(device)
+    # model = SequentialDecisionTree().to(device)
 
     optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
 
     def custom_loss(outputs, target):
-        # return torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
+        return torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
               
         normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
         return torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     criterion = custom_loss
 
     lr_finder = LRFinder(model, optimizer, criterion, device="cuda")
-    lr_finder.range_test(loader_train,start_lr=0.0000001, end_lr=0.01, num_iter=1000, step_mode="exp")
+    lr_finder.range_test(loader_train,start_lr=0.0000001, end_lr=0.001, num_iter=1000, step_mode="exp")
 
     # 绘制学习率vs损失图
     fig, ax = plt.subplots()

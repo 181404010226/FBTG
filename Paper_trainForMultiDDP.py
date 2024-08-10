@@ -17,13 +17,14 @@ from torch.nn.utils import parameters_to_vector, vector_to_parameters
 from convmixer import ConvMixer
 import psutil 
 
+torch.set_float32_matmul_precision('high')
 
 if __name__ == "__main__":
 
     dist.init_process_group(backend='nccl')
 
-    loader_train = create_train_loader(distributed=True)
-    valid_data = create_valid_loader(distributed=True)
+    loader_train = create_train_loader('cifar10',distributed=True)
+    valid_data = create_valid_loader('cifar10',distributed=True)
     # Set the device
     local_rank = int(os.environ["LOCAL_RANK"])
     device = torch.device(f"cuda:{local_rank}")
@@ -45,13 +46,14 @@ if __name__ == "__main__":
     # 初始化模型并移至GPU
     # model = SequentialDecisionTree().to(device)
     # model = ResNet14({'in_channels': 3, 'out_channels': 10, 'activation': 'CosLU'}).to(device)
-    # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
+    model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
     # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10)
     # model = SequentialDecisionTreeCIFAR100().to(device)
-    model = SequentialDecisionTree().to(device)
+    # model = SequentialDecisionTree().to(device)
     # 应用 torch.compile()
-    model = torch.jit.script(model)
+    model = torch.compile(model)
+    # model = torch.jit.script(model)
 
     model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
     # 在将模型移至GPU之前，先将模型参数转换为同步批归一化
@@ -94,7 +96,7 @@ if __name__ == "__main__":
                 
                 # 使用 module 来访问原始模型的方法
                 if isinstance(model, DDP):
-                    is_tree = model.module.isTree
+                    is_tree = hasattr(model.module, 'isTree')
                 else:
                     is_tree = model.isTree
 
