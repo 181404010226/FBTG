@@ -10,12 +10,14 @@ from torch.cuda.amp import autocast, GradScaler
 import torch.nn.functional as F
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-from Paper_Tree import SequentialDecisionTree, SequentialDecisionTreeCIFAR100
+from Paper_Tree import SequentialDecisionTree, SequentialDecisionTreeCIFAR100, SequentialDecisionTreeForRDNet
 from torch.utils.data.distributed import DistributedSampler
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
 from convmixer import ConvMixer
 import psutil 
+import torch.nn as nn
+from RDNet import rdnet_tiny
 
 torch.set_float32_matmul_precision('high')
 
@@ -46,11 +48,30 @@ if __name__ == "__main__":
     # 初始化模型并移至GPU
     # model = SequentialDecisionTree().to(device)
     # model = ResNet14({'in_channels': 3, 'out_channels': 10, 'activation': 'CosLU'}).to(device)
-    model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
+    # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
     # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10)
     # model = SequentialDecisionTreeCIFAR100().to(device)
     # model = SequentialDecisionTree().to(device)
+    model = SequentialDecisionTreeForRDNet().to(device)
+        # 创建模型
+    # model = timm.create_model('rdnet_tiny', pretrained=False, num_classes=10)
+    
+    # # 加载预训练权重
+    # local_pretrained_path = 'rdnet_tiny/pytorch_model.bin'
+    # state_dict = torch.load(local_pretrained_path, map_location=device)
+    
+    # # 删除最后的全连接层权重
+    # for key in ['head.fc.weight', 'head.fc.bias']:
+    #     if key in state_dict:
+    #         del state_dict[key]
+    
+    # # 加载修改后的权重
+    # model.load_state_dict(state_dict, strict=False)
+    
+    # # 重新初始化最后的全连接层
+    # model.head.fc = nn.Linear(model.head.fc.in_features, 10)
+
     # 应用 torch.compile()
     model = torch.compile(model)
     # model = torch.jit.script(model)

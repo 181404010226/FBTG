@@ -5,10 +5,10 @@ import torch.nn.functional as F
 
 class GlobalVars:
     def __init__(self):
-        self.num_epochs = 500
-        #self.input_size=(3, 224, 224) #astroformer
-        self.input_size=(3, 32, 32)
-        self.max_lr=0.001
+        self.num_epochs = 300
+        self.input_size=(3, 224, 224) #astroformer #RDNet
+        # self.input_size=(3, 32, 32)
+        self.max_lr=0.00002
         self.train_batch_size = 64 // torch.cuda.device_count()
         self.test_batch_size = 64
 

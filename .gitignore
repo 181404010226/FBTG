@@ -4,3 +4,5 @@ CIFAR10RawData
 __pycache__
 .ipynb_checkpoints
 *.json
+*.bin
+*.pth

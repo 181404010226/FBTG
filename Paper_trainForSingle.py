@@ -18,7 +18,8 @@ from convmixer import ConvMixer
 import psutil 
 from torch_lr_finder import LRFinder
 import matplotlib.pyplot as plt
-
+from RDNet import rdnet_tiny
+import torch.nn as nn
 
 
 if __name__ == "__main__":
@@ -45,42 +46,61 @@ if __name__ == "__main__":
     # 初始化模型并移至GPU
     # model = SequentialDecisionTree().to(device)
     # model = ResNet14({'in_channels': 3, 'out_channels': 10, 'activation': 'CosLU'}).to(device)
-    model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
+    # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
     # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
     # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10).to(device)
     # model = SequentialDecisionTree().to(device)
     # model = muxnet_m(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
     # model = muxnet_l(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
+    # 创建模型
+    model = timm.create_model('rdnet_tiny', pretrained=False, num_classes=10)
+    
+    # 加载预训练权重
+    local_pretrained_path = 'rdnet_tiny/pytorch_model.bin'
+    state_dict = torch.load(local_pretrained_path, map_location=device)
+    
+    # 删除最后的全连接层权重
+    for key in ['head.fc.weight', 'head.fc.bias']:
+        if key in state_dict:
+            del state_dict[key]
+    
+    # 加载修改后的权重
+    model.load_state_dict(state_dict, strict=False)
+    
+    # 重新初始化最后的全连接层
+    model.head.fc = nn.Linear(model.head.fc.in_features, 10)
+    
+    model = model.to(device)
 
     #model = SequentialDecisionTreeCIFAR100().to(device)
     # model = SequentialDecisionTree().to(device)
 
     optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
 
-    def custom_loss(outputs, target):
-        return torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
+    # def custom_loss(outputs, target):
+    #     return torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
               
-        normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
-        return torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
+    #     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
+    #     return torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
 
-    # 使用自定义损失函数
-    criterion = custom_loss
+    # # 使用自定义损失函数
+    # criterion = custom_loss
 
-    lr_finder = LRFinder(model, optimizer, criterion, device="cuda")
-    lr_finder.range_test(loader_train,start_lr=0.0000001, end_lr=0.001, num_iter=1000, step_mode="exp")
+    # lr_finder = LRFinder(model, optimizer, criterion, device="cuda")
+    # lr_finder.range_test(loader_train,start_lr=0.0000001, end_lr=0.001, num_iter=1000, step_mode="exp")
 
-    # 绘制学习率vs损失图
-    fig, ax = plt.subplots()
-    lr_finder.plot(ax=ax)
-    plt.savefig('lr_finder_plot.png')
-    plt.close()
+    # # 绘制学习率vs损失图
+    # fig, ax = plt.subplots()
+    # lr_finder.plot(ax=ax)
+    # plt.savefig('lr_finder_plot.png')
+    # plt.close()
 
-    # 获取建议的学习率
-    suggested_lr = lr_finder.suggestion()
-    print(f"Suggested learning rate: {suggested_lr}")
+    # # 获取建议的学习率
+    # suggested_lr = lr_finder.suggestion()
+    # print(f"Suggested learning rate: {suggested_lr}")
 
-    # 重置模型和优化器
-    lr_finder.reset()
+    # # 重置模型和优化器
+    # lr_finder.reset()
 
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
