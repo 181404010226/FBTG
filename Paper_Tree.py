@@ -6,6 +6,7 @@ from astroformer import MaxxVit, model_cfgs
 from convmixer import ConvMixer
 import numpy as np
 import timm
+from RDNet import rdnet_tiny
 
 class DecisionNode(nn.Module):
     def __init__(self, model, judge=[-1,-1]):
@@ -19,11 +20,12 @@ class DecisionNode(nn.Module):
         return outputs
     
 class SequentialDecisionTreeForRDNet(nn.Module):
-    def __init__(self):
+    def __init__(self, isTest=False):
         super(SequentialDecisionTreeForRDNet, self).__init__()
         self.isTree = True
         self.debug = True
-        
+        self.isTest = isTest
+     
         self.nodes = nn.ModuleList([
             DecisionNode(self.create_rdnet(2), judge=[[0,1,8,9],[2,3,4,5,6,7]]),
             DecisionNode(self.create_rdnet(2), judge=[[0,8],[1,9]]),
@@ -37,14 +39,16 @@ class SequentialDecisionTreeForRDNet(nn.Module):
     
     def create_rdnet(self, num_classes):
         model = timm.create_model('rdnet_tiny', pretrained=False, num_classes=num_classes)
-        local_pretrained_path = 'rdnet_tiny/pytorch_model.bin'
-        state_dict = torch.load(local_pretrained_path)
-        
-        for key in ['head.fc.weight', 'head.fc.bias']:
-            if key in state_dict:
-                del state_dict[key]
-        
-        model.load_state_dict(state_dict, strict=False)
+        if self.isTest==False:
+            local_pretrained_path = 'rdnet_tiny/pytorch_model.bin'
+            state_dict = torch.load(local_pretrained_path)
+            
+            for key in ['head.fc.weight', 'head.fc.bias']:
+                if key in state_dict:
+                    del state_dict[key]
+    
+            model.load_state_dict(state_dict, strict=False)
+
         model.head.fc = nn.Linear(model.head.fc.in_features, num_classes)
         return model
     
