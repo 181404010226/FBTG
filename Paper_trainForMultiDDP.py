@@ -10,7 +10,7 @@ from torch.cuda.amp import autocast, GradScaler
 import torch.nn.functional as F
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-from Paper_Tree import SequentialDecisionTree, SequentialDecisionTreeCIFAR100, SequentialDecisionTreeForRDNet
+from Paper_Tree import *
 from torch.utils.data.distributed import DistributedSampler
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
@@ -25,8 +25,9 @@ if __name__ == "__main__":
 
     dist.init_process_group(backend='nccl')
 
-    loader_train = create_train_loader('cifar10',distributed=True)
-    valid_data = create_valid_loader('cifar10',distributed=True)
+    loader_train = create_train_loader('cifar100',distributed=True)
+    valid_data = create_valid_loader('cifar100',distributed=True)
+
     # Set the device
     local_rank = int(os.environ["LOCAL_RANK"])
     device = torch.device(f"cuda:{local_rank}")
@@ -53,7 +54,8 @@ if __name__ == "__main__":
     # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10)
     # model = SequentialDecisionTreeCIFAR100().to(device)
     # model = SequentialDecisionTree().to(device)
-    model = SequentialDecisionTreeForRDNet().to(device)
+    model = SequentialDecisionTreeCIFAR100ForRDNet().to(device)
+    # model = SequentialDecisionTreeForMNIST().to(device)
         # 创建模型
     # model = timm.create_model('rdnet_tiny', pretrained=False, num_classes=10)
     

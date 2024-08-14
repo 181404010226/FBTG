@@ -95,6 +95,33 @@ class SequentialDecisionTree(nn.Module):
         
         return final_outputs
 
+class SequentialDecisionTreeForMNIST(nn.Module):
+    def __init__(self):
+        super(SequentialDecisionTreeForMNIST, self).__init__()
+        self.isTree = True
+        
+        self.nodes = nn.ModuleList([
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[0,8,6,9],[1,2,3,4,5,7]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=3), judge=[[0,8],[6,9]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[0],[8]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[6],[9]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=3), judge=[[1,7],[2,3],[4,5]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[1],[7]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[2],[3]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[4],[5]])
+        ])
+
+
+    def forward(self, x):
+        final_outputs = torch.ones(x.size(0), 10, device=x.device)
+        
+        for node in self.nodes:
+            outputs = node(x)
+            for i, class_indices in enumerate(node.judge):
+                final_outputs[:, class_indices] *= outputs[:, i].unsqueeze(1)
+        
+        return final_outputs
+
 
 # class SequentialDecisionTree(nn.Module):
 #     def __init__(self):
@@ -122,16 +149,17 @@ class SequentialDecisionTree(nn.Module):
         
 #         return final_outputs
 
-class SequentialDecisionTreeCIFAR100(nn.Module):
-    def __init__(self):
-        super(SequentialDecisionTreeCIFAR100, self).__init__()
+class SequentialDecisionTreeCIFAR100ForRDNet(nn.Module):
+    def __init__(self,isTest=False):
+        super(SequentialDecisionTreeCIFAR100ForRDNet, self).__init__()
         self.isTree = True
+        self.isTest=isTest
         # 第一层节点：区分20个大类
-        self.root_node = DecisionNode(ConvMixer(dim=256, depth=16, kernel_size=7, patch_size=1, n_classes=20))
+        self.root_node = DecisionNode(self.create_rdnet(20))
         
         # 创建20个子节点，每个对应一个大类
         self.sub_nodes = nn.ModuleList([
-            DecisionNode(ConvMixer(dim=256, depth=16, kernel_size=7, patch_size=1, n_classes=5))
+            DecisionNode(self.create_rdnet(5))
             for _ in range(20)
         ])
         
@@ -148,6 +176,21 @@ class SequentialDecisionTreeCIFAR100(nn.Module):
             16, 19, 2, 4, 6, 19, 5, 5, 8, 19,
             18, 1, 2, 15, 6, 0, 17, 8, 14, 13
         ]
+
+    def create_rdnet(self, num_classes):
+        model = timm.create_model('rdnet_tiny', pretrained=False, num_classes=num_classes)
+        if self.isTest==False:
+            local_pretrained_path = 'rdnet_tiny/pytorch_model.bin'
+            state_dict = torch.load(local_pretrained_path)
+            
+            for key in ['head.fc.weight', 'head.fc.bias']:
+                if key in state_dict:
+                    del state_dict[key]
+    
+            model.load_state_dict(state_dict, strict=False)
+
+        model.head.fc = nn.Linear(model.head.fc.in_features, num_classes)
+        return model
     
     def forward(self, x):
         # 获取大类的概率分布

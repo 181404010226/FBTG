@@ -8,6 +8,7 @@ class GlobalVars:
         self.num_epochs = 300
         self.input_size=(3, 224, 224) #astroformer #RDNet
         # self.input_size=(3, 32, 32)
+        # self.input_size=(1, 28, 28)
         self.max_lr=0.00002
         self.train_batch_size = 64 // torch.cuda.device_count()
         self.test_batch_size = 64
