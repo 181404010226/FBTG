@@ -53,9 +53,6 @@ trainset_cifar10 = datasets.CIFAR10(root=root, train=True, download=True, transf
 testset_cifar10 = datasets.CIFAR10(root=root, train=False, download=True, transform=None)
 trainset_cifar100 = datasets.CIFAR100(root=root, train=True, download=True, transform=None)
 testset_cifar100 = datasets.CIFAR100(root=root, train=False, download=True, transform=None)
-trainset_stl10 = datasets.MNIST(root=root, train=True, download=True, transform=None)
-testset_stl10 = datasets.MNIST(root=root, train=False, download=True, transform=None)
-
 # 修改创建训练数据加载器的部分
 def create_train_loader(dataset='cifar10', distributed=False):
     global loader_train
@@ -66,11 +63,8 @@ def create_train_loader(dataset='cifar10', distributed=False):
     elif dataset == 'cifar100':
         trainset = trainset_cifar100
         num_classes = 100
-    elif dataset == 'mnist':
-        trainset = trainset_stl10
-        num_classes = 10
     else:
-        raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100', or 'mnist'.")
+        raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100'")
     
     mixup_args['num_classes'] = num_classes
     mixup_fn = Mixup(**mixup_args)
@@ -118,10 +112,8 @@ def create_valid_loader(dataset='cifar10', distributed=False):
         testset = testset_cifar10
     elif dataset == 'cifar100':
         testset = testset_cifar100
-    elif dataset == 'mnist':
-        testset = testset_stl10
     else:
-        raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100', or 'mnist'.")
+        raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100'")
     
     valid_data = create_loader(
         testset,

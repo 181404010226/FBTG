@@ -95,33 +95,6 @@ class SequentialDecisionTree(nn.Module):
         
         return final_outputs
 
-class SequentialDecisionTreeForMNIST(nn.Module):
-    def __init__(self):
-        super(SequentialDecisionTreeForMNIST, self).__init__()
-        self.isTree = True
-        
-        self.nodes = nn.ModuleList([
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[0,8,6,9],[1,2,3,4,5,7]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=3), judge=[[0,8],[6,9]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[0],[8]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[6],[9]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=3), judge=[[1,7],[2,3],[4,5]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[1],[7]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[2],[3]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[4],[5]])
-        ])
-
-
-    def forward(self, x):
-        final_outputs = torch.ones(x.size(0), 10, device=x.device)
-        
-        for node in self.nodes:
-            outputs = node(x)
-            for i, class_indices in enumerate(node.judge):
-                final_outputs[:, class_indices] *= outputs[:, i].unsqueeze(1)
-        
-        return final_outputs
-
 
 # class SequentialDecisionTree(nn.Module):
 #     def __init__(self):
@@ -155,11 +128,11 @@ class SequentialDecisionTreeCIFAR100ForRDNet(nn.Module):
         self.isTree = True
         self.isTest=isTest
         # 第一层节点：区分20个大类
-        self.root_node = DecisionNode(self.create_rdnet(20))
+        self.root_node = DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=20))
         
         # 创建20个子节点，每个对应一个大类
         self.sub_nodes = nn.ModuleList([
-            DecisionNode(self.create_rdnet(5))
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=5))
             for _ in range(20)
         ])
         
@@ -186,7 +159,7 @@ class SequentialDecisionTreeCIFAR100ForRDNet(nn.Module):
             for key in ['head.fc.weight', 'head.fc.bias']:
                 if key in state_dict:
                     del state_dict[key]
-    
+
             model.load_state_dict(state_dict, strict=False)
 
         model.head.fc = nn.Linear(model.head.fc.in_features, num_classes)

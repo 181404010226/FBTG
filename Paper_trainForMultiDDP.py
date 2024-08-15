@@ -75,8 +75,8 @@ if __name__ == "__main__":
     # model.head.fc = nn.Linear(model.head.fc.in_features, 10)
 
     # 应用 torch.compile()
-    model = torch.compile(model)
-    # model = torch.jit.script(model)
+    # model = torch.compile(model)
+    model = torch.jit.script(model)
 
     model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
     # 在将模型移至GPU之前，先将模型参数转换为同步批归一化
