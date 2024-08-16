@@ -76,14 +76,14 @@ if __name__ == "__main__":
 
     # 应用 torch.compile()
     # model = torch.compile(model)
-    model = torch.jit.script(model)
+    # model = torch.jit.script(model)
 
     model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
     # 在将模型移至GPU之前，先将模型参数转换为同步批归一化
     model = model.to(device)
     model = DDP(model, device_ids=[local_rank], output_device=local_rank)
 
-    optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
+    optimizer = optim.AdamW(model.parameters(), lr=0.0003, weight_decay=0.001)
 
     scheduler = optim.lr_scheduler.OneCycleLR(
                 optimizer=optimizer,
@@ -157,7 +157,7 @@ if __name__ == "__main__":
                 if (batch_idx + 1) % 10 == 0:
                     avg_loss = sum(batch_losses[-10:]) / len(batch_losses[-10:])
                     print(f"Batches {batch_idx-8}-{batch_idx+1}/{len(loader_train)}: Avg Loss: {avg_loss:.4f}")
-                    print(f"Learning rate: {scheduler.get_last_lr()[0]:.6f}")
+                    print(f"Learning rate: {scheduler.get_last_lr()[0]:.9f}")
                     batch_losses = []  # Reset the list after printing
 
 

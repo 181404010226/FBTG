@@ -4,6 +4,7 @@ import torch.optim as optim
 from Paper_global_vars import global_vars
 from astroformer import MaxxVit, model_cfgs
 from convmixer import ConvMixer
+from resnet import ResNet8
 import numpy as np
 import timm
 from RDNet import rdnet_tiny
@@ -127,27 +128,38 @@ class SequentialDecisionTreeCIFAR100ForRDNet(nn.Module):
         super(SequentialDecisionTreeCIFAR100ForRDNet, self).__init__()
         self.isTree = True
         self.isTest=isTest
+        self.debug = True
         # 第一层节点：区分20个大类
-        self.root_node = DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=20))
+        self.root_node = DecisionNode(self.create_rdnet(20))
         
         # 创建20个子节点，每个对应一个大类
         self.sub_nodes = nn.ModuleList([
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=5))
+            DecisionNode(self.create_rdnet(5))
             for _ in range(20)
         ])
         
-        # 定义CIFAR-100的20个大类到100个小类的映射
+        # Define the correct CIFAR-100 coarse to fine mapping
         self.coarse_labels = [
-            4, 1, 14, 8, 0, 6, 7, 7, 18, 3,
-            3, 14, 9, 18, 7, 11, 3, 9, 7, 11,
-            6, 11, 5, 10, 7, 6, 13, 15, 3, 15,
-            0, 11, 1, 10, 12, 14, 16, 9, 11, 5,
-            5, 19, 8, 8, 15, 13, 14, 17, 18, 10,
-            16, 4, 17, 4, 2, 0, 17, 4, 18, 17,
-            10, 3, 2, 12, 12, 16, 12, 1, 9, 19,
-            2, 10, 0, 1, 16, 12, 9, 13, 15, 13,
-            16, 19, 2, 4, 6, 19, 5, 5, 8, 19,
-            18, 1, 2, 15, 6, 0, 17, 8, 14, 13
+            [4, 30, 55, 72, 95],  # aquatic mammals
+            [1, 32, 67, 73, 91],  # fish
+            [54, 62, 70, 82, 92],  # flowers
+            [9, 10, 16, 28, 61],  # food containers
+            [0, 51, 53, 57, 83],  # fruit and vegetables
+            [22, 39, 40, 86, 87],  # household electrical devices
+            [5, 20, 25, 84, 94],  # household furniture
+            [6, 7, 14, 18, 24],   # insects
+            [3, 42, 43, 88, 97],  # large carnivores
+            [12, 17, 37, 68, 76], # large man-made outdoor things
+            [23, 33, 49, 60, 71], # large natural outdoor scenes
+            [15, 19, 21, 31, 38], # large omnivores and herbivores
+            [34, 63, 64, 66, 75], # medium-sized mammals
+            [26, 45, 77, 79, 99], # non-insect invertebrates
+            [2, 11, 35, 46, 98],  # people
+            [27, 29, 44, 78, 93], # reptiles
+            [36, 50, 65, 74, 80], # small mammals
+            [47, 52, 56, 59, 96], # trees
+            [8, 13, 48, 58, 90],  # vehicles 1
+            [41, 69, 81, 85, 89]  # vehicles 2
         ]
 
     def create_rdnet(self, num_classes):
@@ -172,40 +184,52 @@ class SequentialDecisionTreeCIFAR100ForRDNet(nn.Module):
         # 对每个大类，获取其小类的概率分布
         fine_probs = torch.stack([sub_node(x) for sub_node in self.sub_nodes], dim=1)
         
-        # 计算最终的100类概率分布
-        final_probs = coarse_probs.unsqueeze(2) * fine_probs
+        # 创建用于存储重新排列后的概率的张量
+        reordered_probs = torch.zeros(x.size(0), 100, device=x.device)
         
         # 重新排列概率以匹配原始的100个类别
-        final_probs_reordered = torch.zeros_like(final_probs.view(x.size(0), -1))
-        for i, coarse_label in enumerate(self.coarse_labels):
-            final_probs_reordered[:, i] = final_probs[:, coarse_label, i % 5]
+        if self.debug:
+            print("Mapping results:")
+        for coarse_idx, fine_indices in enumerate(self.coarse_labels):
+            for fine_idx, class_idx in enumerate(fine_indices):
+                reordered_probs[:, class_idx] = fine_probs[:, coarse_idx, fine_idx]
+                if self.debug:
+                    print(f"Class {class_idx}: fine_probs[{coarse_idx}, {fine_idx}] -> reordered_probs[{class_idx}]")
+        self.debug = False    
         
-        return final_probs_reordered
-
-
-# class SequentialDecisionTreeCIFAR100(nn.Module):
-#     def __init__(self):
-#         super(SequentialDecisionTreeCIFAR100, self).__init__()
-#         self.isTree = True
+  
+        # 展平并扩大5倍的coarse_probs
+        expanded_coarse_probs = coarse_probs.unsqueeze(2).expand(-1, -1, 5).reshape(x.size(0), 100)
         
-#         # 第一层节点：区分10个大类
-#         self.root_node = DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10))
+        # 和reordered_probs相乘
+        final_probs = expanded_coarse_probs * reordered_probs
         
-#         # 10个节点：每个对应一个大类，区分其下的10个小类
-#         self.sub_nodes = nn.ModuleList([
-#             DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10))
-#             for _ in range(10)
-#         ])
+        return final_probs
     
-#     def forward(self, x):
-#         # 获取大类的概率分布
-#         coarse_probs = self.root_node(x)
+
+class SequentialDecisionTreeCIFAR100(nn.Module):
+    def __init__(self):
+        super(SequentialDecisionTreeCIFAR100, self).__init__()
+        self.isTree = True
         
-#         # 对每个大类，获取其小类的概率分布
-#         fine_probs = torch.stack([sub_node(x) for sub_node in self.sub_nodes], dim=1)
+        # 第一层节点：区分10个大类
+        self.root_node = DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10))
         
-#         # 计算最终的100类概率分布
-#         final_probs = coarse_probs.unsqueeze(2) * fine_probs
-#         final_probs = final_probs.view(x.size(0), -1)  # 展平为 (batch_size, 100)
+        # 10个节点：每个对应一个大类，区分其下的10个小类
+        self.sub_nodes = nn.ModuleList([
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10))
+            for _ in range(10)
+        ])
+    
+    def forward(self, x):
+        # 获取大类的概率分布
+        coarse_probs = self.root_node(x)
         
-#         return final_probs
+        # 对每个大类，获取其小类的概率分布
+        fine_probs = torch.stack([sub_node(x) for sub_node in self.sub_nodes], dim=1)
+        
+        # 计算最终的100类概率分布
+        final_probs = coarse_probs.unsqueeze(2) * fine_probs
+        final_probs = final_probs.view(x.size(0), -1)  # 展平为 (batch_size, 100)
+        
+        return final_probs
