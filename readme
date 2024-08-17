@@ -2,19 +2,18 @@
 
 This project implements a Sequential Decision Tree model for image classification tasks, with support for CIFAR-10 and CIFAR-100 datasets.
 
-<div style="text-align: right;">
-  <a href="#english">English</a> | <a href="#chinese">中文</a>
-</div>
+[English](#english) | [中文](#chinese)
 
-<div id="english">
+<a name="english"></a>
+## English
 
-## Key Features
+### Key Features
 
 - Flexible model architecture supporting various backbone networks (ResNet, ConvMixer, RDNet, etc.)
 - Support for both CIFAR-10 and CIFAR-100 datasets
 - Distributed Data Parallel (DDP) training support for multi-GPU setups
 
-## Configuration
+### Configuration
 
 All main parameters can be adjusted in the `Paper_global_vars.py` file. This includes settings such as:
 
@@ -27,9 +26,9 @@ All main parameters can be adjusted in the `Paper_global_vars.py` file. This inc
 - Optimizer choice
 - Model save path
 
-## Running the Training
+### Running the Training
 
-### Single GPU
+#### Single GPU
 
 For single GPU training, simply run:
 
@@ -37,8 +36,7 @@ For single GPU training, simply run:
 python Paper_trainForMultiDDP.py
 ```
 
-
-### Multi-GPU
+#### Multi-GPU
 
 For multi-GPU training using DDP, use the following command:
 
@@ -49,7 +47,7 @@ python -m torch.distributed.launch --nproc_per_node=<num_gpus> Paper_trainForMul
 
 Replace `<num_gpus>` with the number of GPUs you want to use.
 
-## Core Components
+### Core Components
 
 The core of this project is the `Paper_Tree.py` file, which integrates multiple model architectures:
 
@@ -60,7 +58,7 @@ The core of this project is the `Paper_Tree.py` file, which integrates multiple 
 
 These models incorporate various backbone networks such as ResNet, ConvMixer, and RDNet. You can easily integrate your own custom models and experiment with different architectures.
 
-## Customization
+### Customization
 
 To use your own models or datasets:
 
@@ -70,21 +68,18 @@ To use your own models or datasets:
 
 Feel free to experiment with different model architectures and training configurations to achieve the best results for your specific use case.
 
-</div>
+---
 
-<div id="chinese" style="display: none;">
+<a name="chinese"></a>
+## 中文
 
-# 顺序决策树模型
-
-本项目实现了一个用于图像分类任务的顺序决策树模型，支持CIFAR-10和CIFAR-100数据集。
-
-## 主要特点
+### 主要特点
 
 - 灵活的模型架构，支持各种骨干网络（ResNet、ConvMixer、RDNet等）
 - 支持CIFAR-10和CIFAR-100数据集
 - 支持多GPU设置的分布式数据并行（DDP）训练
 
-## 配置
+### 配置
 
 所有主要参数都可以在`Paper_global_vars.py`文件中调整。这包括以下设置：
 
@@ -97,9 +92,9 @@ Feel free to experiment with different model architectures and training configur
 - 优化器选择
 - 模型保存路径
 
-## 运行训练
+### 运行训练
 
-### 单GPU
+#### 单GPU
 
 对于单GPU训练，只需运行：
 
@@ -107,8 +102,7 @@ Feel free to experiment with different model architectures and training configur
 python Paper_trainForMultiDDP.py
 ```
 
-
-### 多GPU
+#### 多GPU
 
 对于使用DDP的多GPU训练，使用以下命令：
 
@@ -117,10 +111,9 @@ python -m torch.distributed.launch --nproc_per_node=<num_gpus> Paper_trainForMul
 ```
 
 
-
 将`<num_gpus>`替换为您想使用的GPU数量。
 
-## 核心组件
+### 核心组件
 
 本项目的核心是`Paper_Tree.py`文件，它集成了多个模型架构：
 
@@ -131,7 +124,7 @@ python -m torch.distributed.launch --nproc_per_node=<num_gpus> Paper_trainForMul
 
 这些模型包含了各种骨干网络，如ResNet、ConvMixer和RDNet。您可以轻松集成自己的自定义模型并尝试不同的架构。
 
-## 自定义
+### 自定义
 
 要使用您自己的模型或数据集：
 
@@ -140,20 +133,3 @@ python -m torch.distributed.launch --nproc_per_node=<num_gpus> Paper_trainForMul
 3. 如果使用自定义数据集，请修改`Paper_trainForMultiDDP.py`中的数据加载过程。
 
 请随意尝试不同的模型架构和训练配置，以达到您特定用例的最佳结果。
-
-</div>
-
-<script>
-function showEnglish() {
-  document.getElementById('english').style.display = 'block';
-  document.getElementById('chinese').style.display = 'none';
-}
-
-function showChinese() {
-  document.getElementById('english').style.display = 'none';
-  document.getElementById('chinese').style.display = 'block';
-}
-
-document.querySelector('a[href="#english"]').addEventListener('click', showEnglish);
-document.querySelector('a[href="#chinese"]').addEventListener('click', showChinese);
-</script>
