@@ -13,104 +13,33 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from Paper_Tree import *
 from torch.utils.data.distributed import DistributedSampler
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader
-from torch.nn.utils import parameters_to_vector, vector_to_parameters
-from convmixer import ConvMixer
-import psutil 
-from torch_lr_finder import LRFinder
-import matplotlib.pyplot as plt
-from RDNet import rdnet_tiny
-import torch.nn as nn
-
+import torch
+import torch.optim as optim
+import os
+from Paper_global_vars import global_vars
+from Paper_Tree import *
+from Paper_DataSetCIFAR import create_train_loader, create_valid_loader  
 
 if __name__ == "__main__":
-    # Set the device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    loader_train = create_train_loader('cifar100',distributed=False)
-    valid_data = create_valid_loader('cifar100',distributed=False)
+    loader_train = create_train_loader(global_vars.dataset, distributed=False)
+    valid_data = create_valid_loader(global_vars.dataset, distributed=False)
 
-    # 检查可用的GPU数量
     num_gpus = torch.cuda.device_count()
     print(f"Number of available GPUs: {num_gpus}")
-    # 使用所有可用的GPU
     print(f"Using device: {device}")
 
-    root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
-    # 检查/hy-tmp是否存在
-    if os.path.exists("/hy-tmp"):
-        save_path = os.path.join("/hy-tmp/best_models")
-    else:
-        save_path = os.path.join("/root/autodl-tmp")
+    # 初始化模型
+    model_class = globals()[global_vars.model_name]
+    model = model_class().to(device)
 
-    # 初始化模型并移至GPU
-    # model = SequentialDecisionTree().to(device)
-    # model = ResNet14({'in_channels': 3, 'out_channels': 10, 'activation': 'CosLU'}).to(device)
-    # model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device)
-    # model = rdnet_tiny(num_classes=1000).to(device)  # Assuming 10 classes for CIFAR-10
-    # model = MaxxVit(model_cfgs['astroformer_0'], num_classes=10).to(device)
-    # model = SequentialDecisionTree().to(device)
-    # model = SequentialDecisionTreeCIFAR100().to(device)
-    model = SequentialDecisionTreeCIFAR100ForRDNet().to(device)
-    # model = muxnet_m(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
-    # model = muxnet_l(num_classes=10).to(device)  # Assuming 10 classes for CIFAR-10
-    # 创建模型
-    # model = timm.create_model('rdnet_tiny', pretrained=False, num_classes=10)
-    
-    # # 加载预训练权重
-    # local_pretrained_path = 'rdnet_tiny/pytorch_model.bin'
-    # state_dict = torch.load(local_pretrained_path, map_location=device)
-    
-    # # 删除最后的全连接层权重
-    # for key in ['head.fc.weight', 'head.fc.bias']:
-    #     if key in state_dict:
-    #         del state_dict[key]
-    
-    # # 加载修改后的权重
-    # model.load_state_dict(state_dict, strict=False)
-    
-    # # 重新初始化最后的全连接层
-    # model.head.fc = nn.Linear(model.head.fc.in_features, 10)
-    # model = torch.jit.script(model)
-    # model = torch.compile(model)
-    model = model.to(device)
-
-    #model = SequentialDecisionTreeCIFAR100().to(device)
-    # model = SequentialDecisionTree().to(device)
-
-    optimizer = optim.AdamW(model.parameters(), weight_decay=0.001)
-
-    # def custom_tree_loss(outputs, target):
-    #     normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
-    #     return torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
-    
-    # def custom_loss(outputs, target):
-    #     return torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
-    
-    # if hasattr(model, 'isTree') and model.isTree:
-    #     print("SequentialDecisionTree Loss")
-    #     criterion = custom_tree_loss
-    # else:        
-    #     print("single model Loss")
-    #     criterion = custom_loss
-
-    # # 使用自定义损失函数
-
-    # lr_finder = LRFinder(model, optimizer, criterion, device="cuda")
-    # lr_finder.range_test(loader_train,start_lr=0.0000001, end_lr=0.001, num_iter=1000, step_mode="exp")
-
-    # # 绘制学习率vs损失图
-    # fig, ax = plt.subplots()
-    # lr_finder.plot(ax=ax)
-    # plt.savefig('lr_finder_plot.png')
-    # plt.close()
-
-    # # 获取建议的学习率
-    # suggested_lr = lr_finder.suggestion()
-    # print(f"Suggested learning rate: {suggested_lr}")
-
-    # # 重置模型和优化器
-    # lr_finder.reset()
+    optimizer = getattr(optim, global_vars.optimizer)(
+        model.parameters(), 
+        lr=global_vars.max_lr, 
+        weight_decay=0.001
+    )
 
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
@@ -208,9 +137,9 @@ if __name__ == "__main__":
                 min_acc = best_accuracies[min_acc_index]
                 
                 # 删除文件系统中的模型文件
-                for filename in os.listdir(save_path):
+                for filename in os.listdir(global_vars.save_path):
                     if filename.startswith("checkpoint_") and filename.endswith(f"acc_{min_acc:.4f}.pth"):
-                        os.remove(os.path.join(save_path, filename))
+                        os.remove(os.path.join(global_vars.save_path, filename))
                         print(f"Removed file: {filename}")
                 
                 best_models.pop(min_acc_index)
@@ -226,8 +155,8 @@ if __name__ == "__main__":
             best_accuracies = list(best_accuracies)
             
             # 保存模型和优化器
-            save_path_checkpoint = os.path.join(save_path, f"checkpoint_epoch_{epoch+1}_acc_{accuracy:.4f}.pth")
-            os.makedirs(save_path, exist_ok=True)
+            save_path_checkpoint = os.path.join(global_vars.save_path, f"checkpoint_epoch_{epoch+1}_acc_{accuracy:.4f}.pth")
+            os.makedirs(global_vars.save_path, exist_ok=True)
             torch.save(checkpoint, save_path_checkpoint)
             print(f"Saved checkpoint to {save_path_checkpoint}")
 
