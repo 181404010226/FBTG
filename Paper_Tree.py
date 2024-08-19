@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from Paper_global_vars import global_vars
-from astroformer import MaxxVit, model_cfgs
 from convmixer import ConvMixer
 from resnet import ResNet8
 import numpy as np
