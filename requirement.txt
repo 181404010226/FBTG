@@ -4,3 +4,6 @@ timm
 numpy
 matplotlib
 torch_lr_finder
+kornia
+scikit-image
+autograd

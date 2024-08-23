@@ -16,6 +16,8 @@ import torch.nn.functional as F
 from torchvision.models import vgg16
 from loss.perceptual_similarity.perceptual_loss import PerceptualLoss
 import kornia
+import torch.nn.functional as F
+from kornia.losses import ssim_loss
 import numpy as np
 import random
 
@@ -64,16 +66,14 @@ perceptual_loss = PerceptualLoss(model='net-lin', net='alex',
 # 优化器
 optimizer = optim.AdamW(model.parameters(), lr=0.001)
 
-import torch.nn.functional as F
-from kornia.losses import ssim_loss
 
 def lab_loss(output, target):
     # 计算 Delta E 2000 颜色差异
 
     # Separate channel losses
-    l_loss = F.mse_loss(output[:, 0], target[:, 0]) / (100.0 ** 2)  # Normalize by square of range
-    a_loss = F.mse_loss(output[:, 1], target[:, 1]) / (255.0 ** 2)  # Normalize by square of range
-    b_loss = F.mse_loss(output[:, 2], target[:, 2]) / (255.0 ** 2)  # Normalize by square of range
+    l_loss = F.mse_loss(output[:, 0], target[:, 0]) / (100.0 **2)  # Normalize by square of range
+    a_loss = F.mse_loss(output[:, 1], target[:, 1]) / (255.0 **2)  # Normalize by square of range
+    b_loss = F.mse_loss(output[:, 2], target[:, 2]) / (255.0 **2)  # Normalize by square of range
     
     # SSIM loss (applied on L channel only)
     ssim = ssim_loss(output[:, 0].unsqueeze(1), target[:, 0].unsqueeze(1), window_size=11)
@@ -90,11 +90,11 @@ def lab_loss(output, target):
     # Separate high frequency loss for each channel
     high_freq_output_l = output[:, 0] - F.avg_pool2d(output[:, 0].unsqueeze(1), kernel_size=3, stride=1, padding=1).squeeze(1)
     high_freq_target_l = target[:, 0] - F.avg_pool2d(target[:, 0].unsqueeze(1), kernel_size=3, stride=1, padding=1).squeeze(1)
-    high_freq_loss_l = F.mse_loss(high_freq_output_l, high_freq_target_l) / (100.0 ** 2)
+    high_freq_loss_l = F.mse_loss(high_freq_output_l, high_freq_target_l) / (100.0**2)
 
     high_freq_output_ab = output[:, 1:] - F.avg_pool2d(output[:, 1:], kernel_size=3, stride=1, padding=1)
     high_freq_target_ab = target[:, 1:] - F.avg_pool2d(target[:, 1:], kernel_size=3, stride=1, padding=1)
-    high_freq_loss_ab = F.mse_loss(high_freq_output_ab, high_freq_target_ab) / (255.0 ** 2)
+    high_freq_loss_ab = F.mse_loss(high_freq_output_ab, high_freq_target_ab) / (255.0**2)
 
     high_freq_loss = high_freq_loss_l + 0.5 * high_freq_loss_ab  # Weighting channels differently
 
@@ -156,7 +156,7 @@ def save_image_comparison(epoch, data, output):
         axes[1, i].set_title('Reconstructed')
     
     plt.tight_layout()
-    plt.savefig(f'results/256*256LAB_FULL_stl10_epoch_{epoch}.png')
+    plt.savefig(f'results/256*256LAB_HYPER_stl10_epoch_{epoch}.png')
     plt.close()
 
 
@@ -169,7 +169,12 @@ for epoch in range(1, num_epochs + 1):
     
     # 保存模型检查点
     if epoch % 5 == 0:
-        torch.save(model.state_dict(), f'checkpoints/model_epoch_{epoch}.pth')
+        # 保存模型
+        torch.save({
+            'encoder': model.encoder.state_dict(),
+            'generator': model.generator.state_dict(),
+            'hyperprior': model.hyperprior.state_dict(),
+        }, 'model_checkpoint.pth')
     
     # 生成并保存图像对比
     if epoch % 1 == 0:
