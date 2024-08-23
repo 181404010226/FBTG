@@ -5,10 +5,9 @@ import numpy as np
 import math
 from torch.nn import GELU
 
-
-if __name__ == "__main__":
+try:
     import channel, instance
-else:   
+except ImportError:
     from . import channel, instance
 
 class ResidualBlock(nn.Module):

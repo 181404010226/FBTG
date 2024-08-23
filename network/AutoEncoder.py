@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 
 
-if __name__ == "__main__":
+try:
     from encoder import Encoder
     from generator import Generator
-else:
+except ImportError:
     from .encoder import Encoder
     from .generator import Generator
 
