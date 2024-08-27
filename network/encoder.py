@@ -29,7 +29,7 @@ class Encoder(nn.Module):
         super(Encoder, self).__init__()
         
         kernel_dim = 3
-        filters = (15, 30, 60, 120, 240)
+        filters = (60, 120, 240, 480, 960)
 
         # Images downscaled to 500 x 1000 + randomly cropped to 256 x 256
         im_channels = image_dims[0]

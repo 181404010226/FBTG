@@ -70,13 +70,13 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
         
         kernel_dim = 3
-        filters = [240, 120, 60,30,15]
+        filters = [960,480,240, 120, 60]
         self.n_residual_blocks = n_residual_blocks
         self.sample_noise = sample_noise
         self.noise_dim = noise_dim
 
         # Layer / normalization options
-        cnn_kwargs = dict(stride=2, padding=1, output_padding=1)
+        cnn_kwargs = dict(stride=2, padding=kernel_dim//2, output_padding=1)
         norm_kwargs = dict(momentum=0.1, affine=True, track_running_stats=False)
         activation_d = dict(relu='ReLU', elu='ELU', leaky_relu='LeakyReLU', gelu='GELU')
         self.activation = getattr(nn, activation_d[activation])  # (leaky_relu, relu, elu, gelu)
@@ -175,10 +175,10 @@ class Generator(nn.Module):
 if __name__ == "__main__":
     import os
 
-    C = 128
-    y = torch.randn([10,C,2,2])
+    C = 16
+    y = torch.randn([10,C,16,16])
     y_dims = y.size()
-    G = Generator(y_dims[1:], y_dims[0], C=C, n_residual_blocks=3, sample_noise=True)
+    G = Generator(y_dims[1:], y_dims[0], C=C, sample_noise=True)
 
     x_hat = G(y)
     print(f"Output size: {x_hat.size()}")

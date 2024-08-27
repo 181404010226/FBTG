@@ -40,10 +40,11 @@ class AutoEncoder(CompressionModel):
             nn.Conv2d(C, C, kernel_size=3, stride=1, padding=1),
             GDN(C, inverse=True)
         )
-
+        
+    def update(self):
+        self.entropy_bottleneck.update()
     
     def forward(self, x):
-        self.entropy_bottleneck.update()
         encoded = self.encoder(x)
         y = self.g_a(encoded)
         y_hat, y_likelihoods = self.entropy_bottleneck(y)

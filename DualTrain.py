@@ -38,19 +38,31 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # 创建保存结果的文件夹
 os.makedirs("results", exist_ok=True)
 os.makedirs("checkpoints", exist_ok=True)
+ImageSize=96*2
+batch_size = 64
 
 # 数据预处理
-
-transform = transforms.Compose([
-    transforms.Resize((256, 256)),
+train_transform = transforms.Compose([
+    # transforms.RandomCrop(64),
+    transforms.Resize((ImageSize, ImageSize)),
     transforms.ToTensor(),
     transforms.Lambda(lambda x: kornia.color.rgb_to_lab(x.unsqueeze(0)).squeeze(0))
 ])
 
-batch_size = 128
+eval_transform = transforms.Compose([
+    transforms.Resize((ImageSize, ImageSize)),
+    transforms.ToTensor(),
+    transforms.Lambda(lambda x: kornia.color.rgb_to_lab(x.unsqueeze(0)).squeeze(0))
+])
+
 # 加载STL10数据集
-train_dataset = datasets.STL10(root='./STL10Data', split='train+unlabeled', download=True, transform=transform)
+train_dataset = datasets.STL10(root='./STL10Data', split='train+unlabeled', download=True, transform=train_transform)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=8)
+
+# 创建一个小的评估数据集
+eval_dataset = datasets.STL10(root='./STL10Data', split='train', download=True, transform=eval_transform)
+eval_loader = DataLoader(eval_dataset, batch_size=5, shuffle=True, num_workers=2)
+
 
 # 加载CIFAR-10数据集
 # train_dataset = datasets.CIFAR10(root='./CIFAR10RawData', train=True, download=True, transform=transform)
@@ -58,13 +70,13 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, nu
 
 # 初始化模型
 # model = HourglassModel().to(device)
-model = AutoEncoder(image_dims=(3, 256, 256), batch_size=batch_size,
+model = AutoEncoder(image_dims=(3, ImageSize, ImageSize), batch_size=batch_size,
                     C=16,activation='leaky_relu').to(device)
 
 perceptual_loss = PerceptualLoss(model='net-lin', net='alex', 
                                  colorspace='Lab', use_gpu=torch.cuda.is_available()).to(device)
 # 优化器
-optimizer = optim.AdamW(model.parameters(), lr=0.001)
+optimizer = optim.AdamW(model.parameters(), lr=0.0001)
 
 
 def lab_loss(output, target):
@@ -143,9 +155,6 @@ def train(epoch):
     
     return avg_loss, avg_compressed_size
 
-
-
-
 # 保存图像对比
 def save_image_comparison(epoch, data, output):
     fig, axes = plt.subplots(2, 5, figsize=(15, 6))
@@ -161,27 +170,27 @@ def save_image_comparison(epoch, data, output):
         axes[1, i].set_title('Reconstructed')
     
     plt.tight_layout()
-    plt.savefig(f'results/256*256LAB_HYPER_stl10_epoch_{epoch}.png')
+    plt.savefig(f'results/两倍原96*96LAB_HYPER_stl10_epoch_{epoch}.png')
     plt.close()
 
 
 # 训练循环
 num_epochs = 50
-
+# 修改训练循环
 for epoch in range(1, num_epochs + 1):
+    model.update()
     avg_loss, avg_compressed_size = train(epoch)
     print(f'Epoch {epoch}, Average Loss: {avg_loss:.4f}, Average Compressed Size: {avg_compressed_size:.2f} bytes')
     
     # 保存模型检查点
     if epoch % 5 == 0:
-        # 保存整个模型
         torch.save(model.state_dict(), f'model_checkpoint{epoch}.pth')
     
     # 生成并保存图像对比
     if epoch % 1 == 0:
         model.eval()
         with torch.no_grad():
-            data = next(iter(train_loader))[0][:5].to(device)
+            data = next(iter(eval_loader))[0].to(device)
             output, compressed = model(data)
             save_image_comparison(epoch, data, output)
 
