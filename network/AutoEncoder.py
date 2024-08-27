@@ -12,13 +12,13 @@ except ImportError:
     from .encoder import Encoder
     from .generator import Generator
 
-from compression.hyperprior_model import HyperpriorDensity, HyperpriorEntropyModel
-from network.hyperprior import Hyperprior  # Import Hyperprior
+from compressai.models import CompressionModel
+from compressai.entropy_models import EntropyBottleneck
+from compressai.layers import GDN
 
-
-class AutoEncoder(nn.Module):
+class AutoEncoder(CompressionModel):
     def __init__(self, image_dims, batch_size, C=20, activation='relu', n_residual_blocks=8, channel_norm=True):
-        super(AutoEncoder, self).__init__()
+        super().__init__(entropy_bottleneck_channels=C)
         
         self.encoder = Encoder(image_dims, batch_size, activation, C, channel_norm)
         
@@ -30,16 +30,41 @@ class AutoEncoder(nn.Module):
         
         self.generator = Generator(encoder_output_dims, batch_size, C, activation, n_residual_blocks, channel_norm)
         
-        # Add hyperprior model
-        self.hyperprior = Hyperprior(bottleneck_capacity=C, entropy_code=True)  # Use Hyperprior
-        self.hyperprior.hyperprior_entropy_model.build_tables()  # Ensure CDF is built
+        # Add CompressAI components
+        self.entropy_bottleneck = EntropyBottleneck(C)
+        self.g_a = nn.Sequential(
+            GDN(C),
+            nn.Conv2d(C, C, kernel_size=3, stride=1, padding=1)
+        )
+        self.g_s = nn.Sequential(
+            nn.Conv2d(C, C, kernel_size=3, stride=1, padding=1),
+            GDN(C, inverse=True)
+        )
+
     
     def forward(self, x):
+        self.entropy_bottleneck.update()
         encoded = self.encoder(x)
-        # Compress
-        hyperinfo= self.hyperprior(encoded, tuple(x.size()[2:]))
-        # Generate output
-        reconstructed = self.generator(hyperinfo.decoded)
+        y = self.g_a(encoded)
+        y_hat, y_likelihoods = self.entropy_bottleneck(y)
+        decoded = self.g_s(y_hat)
+        reconstructed = self.generator(decoded)
+        
+        # Compress the latent representation
+        compressed = self.entropy_bottleneck.compress(y)
+        
+        return reconstructed, compressed
+
+    def compress(self, x):
+        encoded = self.encoder(x)
+        y = self.g_a(encoded)
+        compressed = self.entropy_bottleneck.compress(y)
+        return compressed
+
+    def decompress(self, strings, shape):
+        y_hat = self.entropy_bottleneck.decompress(strings, shape)
+        decoded = self.g_s(y_hat)
+        reconstructed = self.generator(decoded)
         return reconstructed
 
 

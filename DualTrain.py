@@ -103,27 +103,19 @@ def lab_loss(output, target):
     return total_loss, l_loss, a_loss, b_loss, ssim, tv_loss, high_freq_loss
 
 
-# 训练函数
 def train(epoch):
     model.train()
     total_loss = 0
+    total_compressed_size = 0
+    
     for batch_idx, (data, _) in enumerate(tqdm(train_loader)):
         data = data.to(device)
         optimizer.zero_grad()
-        output = model(data)
+        output, compressed = model(data)
         
-        # Calculate perceptual loss and take the mean to get a scalar
+        # Calculate losses
         loss_perceptual = perceptual_loss(output, data).mean()
-        
-        # MSE loss is already a scalar
-        # loss_mse = nn.MSELoss()(output, data)
-        
-        # Combine losses (you can adjust the weights)
-        # loss =loss_perceptual# + 0.5 * loss_mse
-        # LAB-specific loss
         loss_lab, l_loss, a_loss, b_loss, ssim, tv_loss, high_freq_loss = lab_loss(output, data)
-
-        # Combine losses
         loss = 0.3 * loss_perceptual + 0.7 * loss_lab
 
         loss.backward()
@@ -131,13 +123,26 @@ def train(epoch):
         
         total_loss += loss.item()
         
+        # Calculate compressed size
+        compressed_size = sum(len(s) for s in compressed)
+        total_compressed_size += compressed_size
+        
     print(f'Epoch {epoch}, Batch {batch_idx}, Backward Loss: {loss.item():.4f}, '
-      f' L: {l_loss.item():.4f}, '
-      f'a: {a_loss.item():.4f}, b: {b_loss.item():.4f}, '
-      f'SSIM: {ssim.item():.4f}, TV: {tv_loss.item():.4f}, HF: {high_freq_loss.item():.4f}')
+            f'L: {l_loss.item():.4f}, '
+            f'a: {a_loss.item():.4f}, b: {b_loss.item():.4f}, '
+            f'SSIM: {ssim.item():.4f}, TV: {tv_loss.item():.4f}, HF: {high_freq_loss.item():.4f}')
     print(f'pLoss: {loss_perceptual.item():.4f}',
-          f'lr: {optimizer.param_groups[0]["lr"]:.8f}')
-    return total_loss / len(train_loader)
+            f'lr: {optimizer.param_groups[0]["lr"]:.8f}')
+    
+    avg_loss = total_loss / len(train_loader)
+    avg_compressed_size = total_compressed_size / len(train_dataset)
+    
+    print(f'Epoch {epoch}, Average Loss: {avg_loss:.4f}')
+    print(f'total_compressed_size: {total_compressed_size}')
+    print(f'Average Compressed Size: {avg_compressed_size:.2f} bytes per image')
+    
+    return avg_loss, avg_compressed_size
+
 
 
 
@@ -164,24 +169,20 @@ def save_image_comparison(epoch, data, output):
 num_epochs = 50
 
 for epoch in range(1, num_epochs + 1):
-    avg_loss= train(epoch)
-    print(f'Epoch {epoch}, Average Loss: {avg_loss:.4f}')
+    avg_loss, avg_compressed_size = train(epoch)
+    print(f'Epoch {epoch}, Average Loss: {avg_loss:.4f}, Average Compressed Size: {avg_compressed_size:.2f} bytes')
     
     # 保存模型检查点
     if epoch % 5 == 0:
-        # 保存模型
-        torch.save({
-            'encoder': model.encoder.state_dict(),
-            'generator': model.generator.state_dict(),
-            'hyperprior': model.hyperprior.state_dict(),
-        }, 'model_checkpoint.pth')
+        # 保存整个模型
+        torch.save(model.state_dict(), f'model_checkpoint{epoch}.pth')
     
     # 生成并保存图像对比
     if epoch % 1 == 0:
         model.eval()
         with torch.no_grad():
             data = next(iter(train_loader))[0][:5].to(device)
-            output = model(data)
+            output, compressed = model(data)
             save_image_comparison(epoch, data, output)
 
 print("Training completed!")

@@ -7,3 +7,4 @@ torch_lr_finder
 kornia
 scikit-image
 autograd
+compressai
