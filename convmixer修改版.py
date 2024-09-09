@@ -12,7 +12,7 @@ class Residual(nn.Module):
 class SelfAttention(nn.Module):
     def __init__(self, dim):
         super().__init__()
-        self.attention = nn.MultiheadAttention(dim, num_heads=8, batch_first=True)
+        self.attention = nn.MultiheadAttention(dim, num_heads=4, batch_first=True)
         
     def forward(self, x):
         b, c, h, w = x.shape

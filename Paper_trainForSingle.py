@@ -19,6 +19,7 @@ import os
 from Paper_global_vars import global_vars
 from Paper_Tree import *
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader  
+from convmixer修改版 import ConvMixer
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -32,8 +33,9 @@ if __name__ == "__main__":
     print(f"Using device: {device}")
 
     # 初始化模型
-    model_class = globals()[global_vars.model_name]
-    model = model_class().to(device)
+    #model_class = globals()[global_vars.model_name]
+    #model = model_class().to(device)
+    model=ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device);
 
     optimizer = getattr(optim, global_vars.optimizer)(
         model.parameters(), 

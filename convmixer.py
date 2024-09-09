@@ -1,4 +1,27 @@
+import torch
 import torch.nn as nn
+from Paper_global_vars import global_vars
+
+class ParameterTracker(nn.Module):
+    def __init__(self, module):
+        super().__init__()
+        self.module = module
+        self.prev_params = None
+        self.iteration_count = 0
+
+    def forward(self, x):
+        output = self.module(x)
+        if self.training and global_vars.debug:
+            self.iteration_count += 1
+            if self.iteration_count % global_vars.debug_period == 0:
+                current_params = {name: param.clone().detach() for name, param in self.module.named_parameters() if param.requires_grad}
+                if self.prev_params is not None:
+                    changes = [torch.abs(current_params[name] - self.prev_params[name]).mean().item() for name in current_params]
+                    avg_change = sum(changes) / len(changes)
+                    print(f"{self.module.__class__.__name__} average parameter change: {avg_change:.6f}")
+                self.prev_params = current_params
+        return output
+    
 
 class Residual(nn.Module):
     def __init__(self, fn):
