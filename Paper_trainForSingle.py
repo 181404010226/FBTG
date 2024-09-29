@@ -19,7 +19,7 @@ import os
 from Paper_global_vars import global_vars
 from Paper_Tree import *
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader  
-from convmixer修改版 import ConvMixer
+from convmixer import FilteredConvMixer
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -35,8 +35,21 @@ if __name__ == "__main__":
     # 初始化模型
     #model_class = globals()[global_vars.model_name]
     #model = model_class().to(device)
-    model=ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=10).to(device);
-
+    # Initialize the model
+    filter_params = {
+        'input_channels': 3,
+        'hidden_dim': 64,
+        'kernel_size': 3
+    }
+    convmixer_params = {
+        'dim': 256,
+        'depth': 8,
+        'kernel_size': 5,
+        'patch_size': 1,
+        'n_classes': 10
+    }
+    model = FilteredConvMixer(filter_params, convmixer_params).to(device)
+    
     optimizer = getattr(optim, global_vars.optimizer)(
         model.parameters(), 
         lr=global_vars.max_lr, 
@@ -71,7 +84,7 @@ if __name__ == "__main__":
             data, target = data.to(device), target.to(device)
 
             with autocast():
-                outputs = model(data)
+                outputs, filtered_x = model(data, k=50)
                 
                 if hasattr(model, 'isTree') and model.isTree:
                     if (epoch==0 and batch_idx==0):
@@ -114,10 +127,13 @@ if __name__ == "__main__":
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(valid_data):
                 data, target = data.to(device), target.to(device)
-                outputs = model(data)
+                outputs, filtered_x = model(data, k=50)
                 predicted_labels = outputs.argmax(dim=1)
                 total_correct += (predicted_labels == target).sum().item()
                 total_samples += len(target)
+        # 保存过滤后的图像和原始图像
+        filtered_x.save(f"View/filtered_x_{epoch+1}.png")
+        data.save(f"View/original_x_{epoch+1}.png")
 
         accuracy = total_correct / total_samples
         print(f"Test Accuracy: {accuracy:.4f}({total_correct}/{total_samples})")

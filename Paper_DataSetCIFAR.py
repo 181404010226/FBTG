@@ -9,7 +9,9 @@ from torchvision.transforms import Resize
 from pprint import pprint
 import torch.distributed as dist
 from torch.utils.data.distributed import DistributedSampler
-
+# 使用 functools.partial 创建一个可序列化的 collate 函数
+from functools import partial
+   
 # 设置随机种子
 seed = 42
 torch.manual_seed(seed)
@@ -47,12 +49,17 @@ mixup_args = dict(
     num_classes=100
 )
 
+# 将 collate_mixup_fn 移到顶级作用域
+def collate_mixup_fn(batch, mixup_fn):
+    inputs = torch.stack([b[0] for b in batch])
+    targets = torch.tensor([b[1] for b in batch])
+    return mixup_fn(inputs, targets)
+
+
 # 选择数据集
 root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
 trainset_cifar10 = datasets.CIFAR10(root=root, train=True, download=True, transform=None)
 testset_cifar10 = datasets.CIFAR10(root=root, train=False, download=True, transform=None)
-trainset_cifar100 = datasets.CIFAR100(root=root, train=True, download=True, transform=None)
-testset_cifar100 = datasets.CIFAR100(root=root, train=False, download=True, transform=None)
 # 修改创建训练数据加载器的部分
 def create_train_loader(dataset='cifar10', distributed=False):
     global loader_train
@@ -60,7 +67,8 @@ def create_train_loader(dataset='cifar10', distributed=False):
     if dataset == 'cifar10':
         trainset = trainset_cifar10
         num_classes = 10
-    elif dataset == 'cifar100':
+    elif dataset == 'cifar100':  
+        trainset_cifar100 = datasets.CIFAR100(root=root, train=True, download=True, transform=None)
         trainset = trainset_cifar100
         num_classes = 100
     else:
@@ -68,11 +76,7 @@ def create_train_loader(dataset='cifar10', distributed=False):
     
     mixup_args['num_classes'] = num_classes
     mixup_fn = Mixup(**mixup_args)
-
-    def collate_mixup_fn(batch):
-        inputs = torch.stack([b[0] for b in batch])
-        targets = torch.tensor([b[1] for b in batch])
-        return mixup_fn(inputs, targets)
+    collate_fn = partial(collate_mixup_fn, mixup_fn=mixup_fn)
     
     loader_train = create_loader(
         trainset,
@@ -96,8 +100,8 @@ def create_train_loader(dataset='cifar10', distributed=False):
         std=data_config['std'],
         num_workers=8,
         distributed=distributed,
-        crop_pct=data_config['crop_pct'],   
-        collate_fn=collate_mixup_fn,
+        crop_pct=data_config['crop_pct'],       
+        collate_fn=collate_fn,
         use_multi_epochs_loader=False,
         worker_seeding='all',  
         pin_memory=True
@@ -111,6 +115,7 @@ def create_valid_loader(dataset='cifar10', distributed=False):
     if dataset == 'cifar10':
         testset = testset_cifar10
     elif dataset == 'cifar100':
+        testset_cifar100 = datasets.CIFAR100(root=root, train=False, download=True, transform=None)
         testset = testset_cifar100
     else:
         raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100'")
