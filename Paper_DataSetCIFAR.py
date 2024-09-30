@@ -55,16 +55,14 @@ def collate_mixup_fn(batch, mixup_fn):
     targets = torch.tensor([b[1] for b in batch])
     return mixup_fn(inputs, targets)
 
-
 # 选择数据集
 root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
-trainset_cifar10 = datasets.CIFAR10(root=root, train=True, download=True, transform=None)
-testset_cifar10 = datasets.CIFAR10(root=root, train=False, download=True, transform=None)
 # 修改创建训练数据加载器的部分
 def create_train_loader(dataset='cifar10', distributed=False):
     global loader_train
     
     if dataset == 'cifar10':
+        trainset_cifar10 = datasets.CIFAR10(root=root, train=True, download=True, transform=None)
         trainset = trainset_cifar10
         num_classes = 10
     elif dataset == 'cifar100':  
@@ -113,6 +111,7 @@ def create_valid_loader(dataset='cifar10', distributed=False):
     global valid_data
     
     if dataset == 'cifar10':
+        testset_cifar10 = datasets.CIFAR10(root=root, train=False, download=True, transform=None)
         testset = testset_cifar10
     elif dataset == 'cifar100':
         testset_cifar100 = datasets.CIFAR100(root=root, train=False, download=True, transform=None)

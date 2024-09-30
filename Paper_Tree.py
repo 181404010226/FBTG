@@ -6,7 +6,6 @@ from convmixer import ConvMixer
 from resnet import ResNet8
 import numpy as np
 import timm
-from RDNet import rdnet_tiny
 
 class DecisionNode(nn.Module):
     def __init__(self, model, judge=[-1,-1]):
