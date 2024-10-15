@@ -20,6 +20,7 @@ from Paper_global_vars import global_vars
 from Paper_Tree import *
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader  
 from convmixer import ConvMixer
+from NeuronBundle import ConvMixerWithNeuronBundles
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -36,7 +37,7 @@ if __name__ == "__main__":
     #model_class = globals()[global_vars.model_name]
     #model = model_class().to(device)
     # Initialize the model
-    model = ConvMixer(256, 8, 5, 1, 10).to(device)
+    model = ConvMixerWithNeuronBundles(32, 8,128, 3, 1, 10).to(device)
     
     optimizer = getattr(optim, global_vars.optimizer)(
         model.parameters(), 
