@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     # 初始化模型
     #model_class = globals()[global_vars.model_name]
-    #model = model_class().to(device)
+    # model = model_class().to(device)
     # Initialize the model
     model = ConvMixerWithNeuronBundles(32, 8,128, 3, 1, 10).to(device)
     

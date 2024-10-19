@@ -9,10 +9,12 @@ class NeuronBundle(nn.Module):
 
     def forward(self, x):
         out = self.conv(x)
-        if out.sum() > 0:
-            return out
-        else:
-            return torch.zeros_like(out)
+        # 计算每个通道的平均激活值
+        channel_mean = out.mean(dim=(1,2, 3), keepdim=True)
+        # 使用 sigmoid 函数将通道平均值映射到 (0, 1) 范围
+        channel_gate = torch.sigmoid(channel_mean)
+        # 将 channel_gate 广播到与 out 相同的形状，并相乘
+        return out * channel_gate
 
 class NeuronBundleLayer(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, N, **kwargs):
@@ -21,15 +23,11 @@ class NeuronBundleLayer(nn.Module):
         self.neuron_bundles = nn.ModuleList([
             NeuronBundle(in_channels, out_channels, kernel_size, **kwargs) for _ in range(N)
         ])
-        self.activation = nn.GELU()
-        self.batch_norm = nn.BatchNorm2d(out_channels)
 
     def forward(self, x):
         bundle_outputs = [bundle(x) for bundle in self.neuron_bundles]
         summed = torch.stack(bundle_outputs, dim=0).sum(dim=0)
-        activated = self.activation(summed)
-        normalized = self.batch_norm(activated)
-        return normalized
+        return summed
 
 class Residual(nn.Module):
     def __init__(self, fn):
@@ -51,6 +49,8 @@ def ConvMixerWithNeuronBundles(dim, depth, N, kernel_size=9, patch_size=7, n_cla
             Residual(
                 nn.Sequential(
                     NeuronBundleLayer(dim, dim, kernel_size=kernel_size, N=N, groups=dim, padding="same"),
+                    nn.GELU(),
+                    nn.BatchNorm2d(dim)
                 )
             )
         )
