@@ -37,7 +37,7 @@ if __name__ == "__main__":
     #model_class = globals()[global_vars.model_name]
     # model = model_class().to(device)
     # Initialize the model
-    model = ConvMixerWithNeuronBundles(32, 8,128, 3, 1, 10).to(device)
+    model = ConvMixerWithNeuronBundles(256, 4, 64, 5, 1, 10).to(device)
     
     optimizer = getattr(optim, global_vars.optimizer)(
         model.parameters(), 
