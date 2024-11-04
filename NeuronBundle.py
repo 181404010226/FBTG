@@ -5,10 +5,10 @@ import torch.nn.functional as F
 class NeuronBundle(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, N, **kwargs):  # 添加 N 参数
         super().__init__()
-        self.conv = nn.Conv2d(in_channels, out_channels // N, kernel_size, **kwargs)
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, **kwargs)
         # 激活函数
         self.activation = nn.GELU()
-        self.batchnorm = nn.BatchNorm2d(out_channels // N)
+        self.batchnorm = nn.BatchNorm2d(out_channels)
 
     def forward(self, x):
         out = self.conv(x)
@@ -23,11 +23,20 @@ class NeuronBundleLayer(nn.Module):
         self.neuron_bundles = nn.ModuleList([
             NeuronBundle(in_channels, out_channels, kernel_size, N=N, **kwargs) for _ in range(N)
         ])
+        # 添加一个卷积层，将 N * out_channels 压缩为 out_channels
+        self.merge_conv = nn.Conv2d(out_channels * N, out_channels, kernel_size=1)
+        self.activation = nn.GELU()
+        self.batchnorm = nn.BatchNorm2d(out_channels)
 
     def forward(self, x):
         bundle_outputs = [bundle(x) for bundle in self.neuron_bundles]
-        # 将 N 个 bundle 的输出在通道维度上连接，而不是求和
-        return torch.cat(bundle_outputs, dim=1)
+        # 将 N 个 bundle 的输出在通道维度上连接
+        concatenated = torch.cat(bundle_outputs, dim=1)
+        # 通过 merge_conv 压缩通道数
+        out = self.merge_conv(concatenated)
+        out = self.activation(out)
+        out = self.batchnorm(out)
+        return out
 
 class Residual(nn.Module):
     def __init__(self, fn):
@@ -53,7 +62,7 @@ def ConvMixerWithNeuronBundles(dim, depth, N, kernel_size=9, patch_size=7, n_cla
             Residual(
                 nn.Sequential(
                     NeuronBundleLayer(current_dim, current_dim, kernel_size=kernel_size, 
-                                    N=current_N, groups=current_dim//current_N, padding="same"),  # 使用current_N
+                                    N=current_N, groups=current_dim, padding="same"),  # 使用current_N
                 )
             )
         )
@@ -67,12 +76,6 @@ def ConvMixerWithNeuronBundles(dim, depth, N, kernel_size=9, patch_size=7, n_cla
             ])
             current_dim *= 2
             current_N *= 2  # N也翻倍
-            
-            layers.extend([
-                nn.Conv2d(current_dim, current_dim, kernel_size=1),
-                nn.GELU(),
-                nn.BatchNorm2d(current_dim)
-            ])
 
     # 最终分类层
     layers.extend([

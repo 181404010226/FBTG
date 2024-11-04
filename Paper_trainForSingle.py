@@ -37,7 +37,7 @@ if __name__ == "__main__":
     #model_class = globals()[global_vars.model_name]
     # model = model_class().to(device)
     # Initialize the model
-    model = ConvMixerWithNeuronBundles(256, 4, 64, 5, 1, 10).to(device)
+    model = ConvMixerWithNeuronBundles(64, 4, 16, 5, 1, 10).to(device)
     
     optimizer = getattr(optim, global_vars.optimizer)(
         model.parameters(), 
@@ -54,6 +54,7 @@ if __name__ == "__main__":
         cycle_momentum=True,
         base_momentum=0.85,
         max_momentum=0.95,
+        div_factor=100,
     )
 
     best_models = []
@@ -97,7 +98,7 @@ if __name__ == "__main__":
             optimizer.zero_grad()
 
             batch_losses.append(batch_loss.item())
-            if (batch_idx + 1) % 10 == 0:
+            if (batch_idx + 1) % 100 == 0:
                 avg_loss = sum(batch_losses[-10:]) / len(batch_losses[-10:])
                 print(f"Batches {batch_idx-8}-{batch_idx+1}/{len(loader_train)}: Avg Loss: {avg_loss:.4f}")
                 print(f"Learning rate: {scheduler.get_last_lr()[0]:.6f}")
