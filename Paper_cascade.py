@@ -4,8 +4,9 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.cuda.amp import autocast, GradScaler
 from Paper_global_vars import global_vars
-from Paper_DataSetCIFAR import data_config, create_loader, _get_dataset
+from Paper_DataSetCIFAR import data_config, create_loader, _get_dataset, get_mixup_fn, collate_mixup_fn
 from convmixer import ConvMixer
+from functools import partial
 import torchvision.transforms as transforms
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -66,7 +67,7 @@ def create_node_dataset(dataset='cifar10', node_idx=0, train=True):
             # Find which group this class belongs to
             for group_idx, group in enumerate(node_config['classes']):
                 if target in group:
-                    new_targets.append(group_idx)
+                    new_targets.append(group_idx)  # 直接使用组索引作为标签
                     valid_indices.append(idx)
                     break
     
@@ -79,12 +80,10 @@ def create_node_dataset(dataset='cifar10', node_idx=0, train=True):
         filtered_data.append(img)
         filtered_targets.append(new_targets[valid_indices.index(idx)])
     
-    # Convert targets to one-hot encoding
-    one_hot_targets = torch.zeros(len(filtered_targets), node_config['num_classes'])
-    for idx, target in enumerate(filtered_targets):
-        one_hot_targets[idx][target] = 1
+    # 将标签转换为张量
+    targets_tensor = torch.tensor(filtered_targets, dtype=torch.long)
     
-    return filtered_data, one_hot_targets
+    return filtered_data, targets_tensor
 
 def create_node_loader(node_idx, dataset='cifar10', train=True, distributed=False):
     """
@@ -92,8 +91,11 @@ def create_node_loader(node_idx, dataset='cifar10', train=True, distributed=Fals
     """
     data, targets = create_node_dataset(dataset, node_idx, train)
     node_dataset = NodeDataset(data, targets)
-    
+
     if train:
+        mixup_fn = get_mixup_fn(num_classes=2 if node_idx !=4 else 3)  # Adjust num_classes based on node
+        collate_fn = partial(collate_mixup_fn, mixup_fn=mixup_fn)
+        
         loader = create_loader(
             node_dataset,
             input_size=data_config['input_size'],
@@ -115,6 +117,7 @@ def create_node_loader(node_idx, dataset='cifar10', train=True, distributed=Fals
             std=data_config['std'],
             num_workers=1,  # Reduced from 8 to 1 to avoid potential multiprocessing issues
             distributed=distributed,
+            collate_fn=collate_fn,  # Apply Mixup
             pin_memory=True
         )
     else:
@@ -166,16 +169,32 @@ def train_single_node(node_idx, num_epochs=300):
             
             with autocast():
                 outputs = model(data)
-                batch_loss = F.cross_entropy(outputs, target)
+                batch_loss = torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
             
             scaler.scale(batch_loss).backward()
             scaler.step(optimizer)
             scaler.update()
             optimizer.zero_grad()
             
+            # Output accuracy every 100 batches
+            if (batch_idx + 1) % 100 == 0:
+                model.eval()
+                correct = 0
+                total = 0
+                with torch.no_grad():
+                    for val_data, val_target in valid_loader:
+                        val_data, val_target = val_data.to(device), val_target.to(device)
+                        val_outputs = model(val_data)
+                        _, predicted = val_outputs.max(1)
+                        correct += (predicted == val_target).sum().item()
+                        total += val_target.size(0)
+                accuracy = correct / total
+                print(f'Node {node_idx}, Epoch {epoch+1}, Batch {batch_idx+1}: Accuracy = {accuracy:.4f}')
+                model.train()
+        
         scheduler.step()
         
-        # Validation phase
+        # Validation phase at the end of each epoch
         model.eval()
         correct = 0
         total = 0
@@ -198,8 +217,7 @@ def train_single_node(node_idx, num_epochs=300):
                 'epoch': epoch + 1
             }, f'node_{node_idx}_best.pth')
         
-        print(f'Node {node_idx}, Epoch {epoch+1}: Accuracy = {accuracy:.4f}')
-
+        print(f'Node {node_idx}, Epoch {epoch+1}: Best Accuracy = {best_acc:.4f}')
 def train_all_nodes():
     for node_idx in range(8):
         print(f"\nTraining Node {node_idx}")
