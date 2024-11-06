@@ -37,6 +37,8 @@ data_config = {
     'crop_pct': 0.96,
 }
 
+
+
 mixup_args = dict(
     mixup_alpha=0.5,
     cutmix_alpha=0.5,
@@ -47,32 +49,52 @@ mixup_args = dict(
     num_classes=100
 )
 
+def get_mixup_fn(num_classes):
+    mixup_args['num_classes'] = num_classes
+    return Mixup(**mixup_args)
+
+def collate_mixup_fn(batch, mixup_fn):
+    inputs = torch.stack([b[0] for b in batch])
+    targets = torch.tensor([b[1] for b in batch])
+    return mixup_fn(inputs, targets)
+
+
 # 选择数据集
 root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
-trainset_cifar10 = datasets.CIFAR10(root=root, train=True, download=True, transform=None)
-testset_cifar10 = datasets.CIFAR10(root=root, train=False, download=True, transform=None)
-trainset_cifar100 = datasets.CIFAR100(root=root, train=True, download=True, transform=None)
-testset_cifar100 = datasets.CIFAR100(root=root, train=False, download=True, transform=None)
-# 修改创建训练数据加载器的部分
-def create_train_loader(dataset='cifar10', distributed=False):
-    global loader_train
+# 在文件开头，全局变量区域添加
+_trainset_cifar10 = None
+_testset_cifar10 = None
+_trainset_cifar100 = None
+_testset_cifar100 = None
+
+def _get_dataset(dataset='cifar10', train=True):
+    global _trainset_cifar10, _testset_cifar10, _trainset_cifar100, _testset_cifar100
     
     if dataset == 'cifar10':
-        trainset = trainset_cifar10
-        num_classes = 10
+        if train:
+            if _trainset_cifar10 is None:
+                _trainset_cifar10 = datasets.CIFAR10(root=root, train=True, download=True, transform=None)
+            return _trainset_cifar10
+        else:
+            if _testset_cifar10 is None:
+                _testset_cifar10 = datasets.CIFAR10(root=root, train=False, download=True, transform=None)
+            return _testset_cifar10
     elif dataset == 'cifar100':
-        trainset = trainset_cifar100
-        num_classes = 100
-    else:
-        raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100'")
+        if train:
+            if _trainset_cifar100 is None:
+                _trainset_cifar100 = datasets.CIFAR100(root=root, train=True, download=True, transform=None)
+            return _trainset_cifar100
+        else:
+            if _testset_cifar100 is None:
+                _testset_cifar100 = datasets.CIFAR100(root=root, train=False, download=True, transform=None)
+            return _testset_cifar100
+        
+def create_train_loader(dataset='cifar10', distributed=False):
+    trainset = _get_dataset(dataset, train=True)
+    mixup_fn = get_mixup_fn(10 if dataset == 'cifar10' else 100)
     
-    mixup_args['num_classes'] = num_classes
-    mixup_fn = Mixup(**mixup_args)
-
-    def collate_mixup_fn(batch):
-        inputs = torch.stack([b[0] for b in batch])
-        targets = torch.tensor([b[1] for b in batch])
-        return mixup_fn(inputs, targets)
+    from functools import partial
+    collate_fn = partial(collate_mixup_fn, mixup_fn=mixup_fn)
     
     loader_train = create_loader(
         trainset,
@@ -96,24 +118,13 @@ def create_train_loader(dataset='cifar10', distributed=False):
         std=data_config['std'],
         num_workers=8,
         distributed=distributed,
-        crop_pct=data_config['crop_pct'],   
-        collate_fn=collate_mixup_fn,
-        use_multi_epochs_loader=False,
-        worker_seeding='all',  
+        collate_fn=collate_fn,
         pin_memory=True
     )
     return loader_train
 
-# 修改创建验证数据加载器的部分
 def create_valid_loader(dataset='cifar10', distributed=False):
-    global valid_data
-    
-    if dataset == 'cifar10':
-        testset = testset_cifar10
-    elif dataset == 'cifar100':
-        testset = testset_cifar100
-    else:
-        raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100'")
+    testset = _get_dataset(dataset, train=False)
     
     valid_data = create_loader(
         testset,
@@ -126,7 +137,6 @@ def create_valid_loader(dataset='cifar10', distributed=False):
         std=data_config['std'],
         num_workers=8,
         distributed=distributed,
-        crop_pct=data_config['crop_pct'],
         pin_memory=True
     )
     return valid_data
