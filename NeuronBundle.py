@@ -75,7 +75,7 @@ def ConvMixerWithNeuronBundles(dim, depth, N, kernel_size=9, patch_size=7, n_cla
                 )
             ])
             current_dim *= 2
-            current_N *= 2  # N也翻倍
+            # current_N *= 2  # N也翻倍
 
     # 最终分类层
     layers.extend([
