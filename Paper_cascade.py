@@ -199,13 +199,12 @@ def train_single_node(node_idx, num_epochs=300):
         correct = 0
         total = 0
         with torch.no_grad():
-            for data, target in valid_loader:
-                data, target = data.to(device), target.to(device)
-                outputs = model(data)
-                _, predicted = outputs.max(1)
-                _, target_class = target.max(1)
-                correct += (predicted == target_class).sum().item()
-                total += target.size(0)
+            for val_data, val_target in valid_loader:
+                val_data, val_target = val_data.to(device), val_target.to(device)
+                val_outputs = model(val_data)
+                _, predicted = val_outputs.max(1)
+                correct += (predicted == val_target).sum().item()
+                total += val_target.size(0)
         
         accuracy = correct / total
         if accuracy > best_acc:
@@ -218,11 +217,109 @@ def train_single_node(node_idx, num_epochs=300):
             }, f'node_{node_idx}_best.pth')
         
         print(f'Node {node_idx}, Epoch {epoch+1}: Best Accuracy = {best_acc:.4f}')
+
 def train_all_nodes():
     for node_idx in range(8):
         print(f"\nTraining Node {node_idx}")
         print("=" * 50)
         train_single_node(node_idx)
 
+def evaluate_single_node(node_idx):
+    """Evaluate accuracy for a single node using its best saved model"""
+    num_classes = 2 if node_idx != 4 else 3
+    model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=num_classes).to(device)
+    
+    # Load the best saved model
+    checkpoint = torch.load(f'node_{node_idx}_best.pth')
+    model.load_state_dict(checkpoint['model_state'])
+    model.eval()
+    
+    # Get test loader
+    test_loader = create_node_loader(node_idx, train=False)
+    
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for data, target in test_loader:
+            data, target = data.to(device), target.to(device)
+            outputs = model(data)
+            _, predicted = outputs.max(1)
+            correct += (predicted == target).sum().item()
+            total += target.size(0)
+    
+    accuracy = correct / total
+    print(f'Node {node_idx} Accuracy: {accuracy:.4f}')
+    return accuracy
+
+def evaluate_cascade():
+    """Evaluate the entire cascade system's accuracy"""
+    # Get the original test dataset
+    original_dataset = _get_dataset('cifar10', train=False)
+    correct = 0
+    total = 0
+    
+    # Load all models
+    models = []
+    for node_idx in range(8):
+        num_classes = 2 if node_idx != 4 else 3
+        model = ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=num_classes).to(device)
+        checkpoint = torch.load(f'node_{node_idx}_best.pth')
+        model.load_state_dict(checkpoint['model_state'])
+        model.eval()
+        models.append(model)
+    
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=data_config['mean'], std=data_config['std'])
+    ])
+    
+    with torch.no_grad():
+        for img, original_label in original_dataset:
+            img = transform(img).unsqueeze(0).to(device)
+            
+            # Start with root node (node 0)
+            current_node = 0
+            while current_node < 8:
+                output = models[current_node](img)
+                pred = output.argmax(1).item()
+                
+                # Decision tree logic
+                if current_node == 0:
+                    current_node = 1 if pred == 0 else 4  # Left branch (0,1,8,9) or right branch (2,3,4,5,6,7)
+                elif current_node == 1:
+                    current_node = 2 if pred == 0 else 3  # (0,8) or (1,9)
+                elif current_node == 4:
+                    current_node = 5 if pred == 0 else (6 if pred == 1 else 7)  # (2,6) or (3,5) or (4,7)
+                else:
+                    # Leaf nodes: map predictions back to original classes
+                    final_pred = None
+                    if current_node == 2:
+                        final_pred = 0 if pred == 0 else 8
+                    elif current_node == 3:
+                        final_pred = 1 if pred == 0 else 9
+                    elif current_node == 5:
+                        final_pred = 2 if pred == 0 else 6
+                    elif current_node == 6:
+                        final_pred = 3 if pred == 0 else 5
+                    elif current_node == 7:
+                        final_pred = 4 if pred == 0 else 7
+                    
+                    correct += (final_pred == original_label)
+                    total += 1
+                    break
+    
+    cascade_accuracy = correct / total
+    print(f'\nCascade System Overall Accuracy: {cascade_accuracy:.4f}')
+    return cascade_accuracy
+
 if __name__ == "__main__":
-    train_all_nodes()
+    print("Evaluating individual nodes:")
+    print("=" * 50)
+    node_accuracies = [evaluate_single_node(i) for i in range(8)]
+    
+    print("\nEvaluating cascade system:")
+    print("=" * 50)
+    cascade_accuracy = evaluate_cascade()
+
+# if __name__ == "__main__":
+#     train_all_nodes()
