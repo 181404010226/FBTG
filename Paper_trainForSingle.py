@@ -34,7 +34,9 @@ if __name__ == "__main__":
     # 初始化模型
     model_class = globals()[global_vars.model_name]
     model = model_class().to(device)
-
+    # Initialize the model
+    # model = ConvMixerWithNeuronBundles(128,4, 32, 5, 1, 10).to(device)
+    
     optimizer = getattr(optim, global_vars.optimizer)(
         model.parameters(), 
         lr=global_vars.max_lr, 
@@ -50,6 +52,7 @@ if __name__ == "__main__":
         cycle_momentum=True,
         base_momentum=0.85,
         max_momentum=0.95,
+        div_factor=25,
     )
 
     best_models = []

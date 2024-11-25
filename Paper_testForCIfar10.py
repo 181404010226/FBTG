@@ -49,11 +49,11 @@ if __name__ == '__main__':
     clear_directory(Picture_save_path)
 
 
-    # 初始化模型并移至GPU
-    model = SequentialDecisionTreeForRDNet(isTest=True).to(device)
+    # model = SequentialDecisionTreeForRDNet(isTest=True).to(device)
+    model = SequentialDecisionTree().to(device)
 
-    # 加载模型
-    model_path = 'checkpoint_epoch_92_acc_0.9900.pth'
+    model_path = 'checkpoint_epoch_496_acc_0.9642.pth'
+    
     checkpoint = torch.load(model_path, map_location=device)
     # 移除状态字典中的 'module.' 前缀
     state_dict = checkpoint['model_state']
@@ -76,10 +76,16 @@ if __name__ == '__main__':
     class_labels = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
     sample_count = 0
-    fig = plt.figure(figsize=(30, 15))
-    gs = fig.add_gridspec(3, 3, width_ratios=[1, 2, 2])
+    fig = plt.figure(figsize=(10, 5))
+    # 调整gridspec的参数
+    gs = fig.add_gridspec(3, 3, 
+                         width_ratios=[1, 2, 2],
+                         height_ratios=[1, 1, 1],
+                         hspace=0.4,  # 增加垂直间距
+                         wspace=0.3)  # 增加水平间距
     axes = [[fig.add_subplot(gs[i, j]) for j in range(3)] for i in range(3)]
-    fig.tight_layout(pad=5.0)
+    front_size=5
+    label_size=4
 
 
     valid_data = create_valid_loader()
@@ -99,23 +105,23 @@ if __name__ == '__main__':
                     confusion_pair = (class_labels[true_label.item()], class_labels[predicted_label])
                     confusion_dict[confusion_pair] += 1
 
-
-                if not is_correct:
+                if 1:
+                # if not is_correct:
                     row = sample_count % 3
                     
                     # Raw Image
                     img = data[idx].cpu().permute(1, 2, 0).numpy()
                     img = (img - img.min()) / (img.max() - img.min())
                     axes[row][0].imshow(img)
-                    axes[row][0].set_title('Raw Image', fontsize=20)
+                    axes[row][0].set_title('Raw Image', fontsize=front_size)
                     axes[row][0].axis('off')
                     
                     # Probability Distribution
                     probs_np = predicted_probs.cpu().numpy()
                     axes[row][1].bar(range(len(class_labels)), probs_np)
-                    axes[row][1].set_title('Probability Distribution', fontsize=20)
+                    axes[row][1].set_title('Probability Distribution', fontsize=front_size)
                     axes[row][1].set_ylim(0, 1)
-                    axes[row][1].tick_params(axis='y', labelsize=16)
+                    axes[row][1].tick_params(axis='y', labelsize=label_size)
                     axes[row][1].tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)  # Remove x-axis ticks
                     
                     
@@ -141,13 +147,13 @@ if __name__ == '__main__':
                         probs = [node_probs[i] if i < len(node_probs) else 0 for node_probs in all_probs]
                         axes[row][2].bar([pos + i * width for pos in x], probs, width, label=f'Output {i+1}')
 
-                    axes[row][2].set_title('Node Probabilities', fontsize=20)
+                    axes[row][2].set_title('Node Probabilities', fontsize=front_size)
                     axes[row][2].set_ylim(0, 1)
-                    axes[row][2].tick_params(axis='y', labelsize=16)
+                    axes[row][2].tick_params(axis='y', labelsize=label_size)
                     axes[row][2].tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)  # Remove x-axis ticks
-                    axes[row][2].legend(fontsize=12, loc='upper right')
+                    axes[row][2].legend(fontsize=3, loc='upper right')
 
-                    axes[row][0].set_title(f'Batch {batch_idx}, Sample {idx}\nTrue: {class_labels[true_label.item()]}, Pred: {class_labels[predicted_label]}', fontsize=20)
+                    axes[row][0].set_title(f'Batch {batch_idx}, Sample {idx}\nTrue: {class_labels[true_label.item()]}, Pred: {class_labels[predicted_label]}', fontsize=front_size)
 
                     sample_count += 1
                     
@@ -155,11 +161,15 @@ if __name__ == '__main__':
                         plt.savefig(f'{Picture_save_path}/combined_analysis_{sample_count//3}.png', bbox_inches='tight', dpi=300)
                         plt.close(fig)
                         if batch_idx < len(valid_data) - 1:
-                            fig = plt.figure(figsize=(30, 15))
-                            gs = fig.add_gridspec(3, 3, width_ratios=[1, 2, 2])
+                            fig = plt.figure(figsize=(10, 5))
+                            # 调整gridspec的参数
+                            gs = fig.add_gridspec(3, 3, 
+                                                width_ratios=[1, 2, 2],
+                                                height_ratios=[1, 1, 1],
+                                                hspace=0.4,  # 增加垂直间距
+                                                wspace=0.3)  # 增加水平间距
                             axes = [[fig.add_subplot(gs[i, j]) for j in range(3)] for i in range(3)]
-        
-                            fig.tight_layout(pad=5.0)
+                            
 
             accuracy = total_correct / len(data)
             print(f"Test Accuracy: {accuracy:.4f}\{total_correct}\{len(data)}")
