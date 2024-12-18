@@ -19,7 +19,7 @@ import os
 from Paper_global_vars import global_vars
 from Paper_Tree import *
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader  
-from NeuronBundle import ConvMixerWithNeuronBundles
+from NeuronBundle import create_convmixer
 
 
 if __name__ == "__main__":
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     #model_class = globals()[global_vars.model_name]
     # model = model_class().to(device)
     # Initialize the model
-    model = ConvMixerWithNeuronBundles(128,4, 32, 5, 1, 10).to(device)
+    model = create_convmixer(128,4, 32, 5, 1, 10).to(device)
     
     optimizer = getattr(optim, global_vars.optimizer)(
         model.parameters(), 

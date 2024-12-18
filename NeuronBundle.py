@@ -1,87 +1,92 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+from typing import List, Optional
 
-class NeuronBundle(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, N, **kwargs):  # 添加 N 参数
+class ConvBlock(nn.Module):
+    """基础卷积块，包含卷积、激活函数和批归一化"""
+    def __init__(self, in_channels: int, out_channels: int, **kwargs):
         super().__init__()
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, **kwargs)
-        # 激活函数
+        self.conv = nn.Conv2d(in_channels, out_channels, **kwargs)
         self.activation = nn.GELU()
         self.batchnorm = nn.BatchNorm2d(out_channels)
 
-    def forward(self, x):
-        out = self.conv(x)
-        out = self.activation(out)
-        out = self.batchnorm(out)
-        return out 
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.batchnorm(self.activation(self.conv(x)))
+
+class NeuronBundle(ConvBlock):
+    """单个神经元束，继承自ConvBlock"""
+    pass
 
 class NeuronBundleLayer(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, N, **kwargs):
+    """神经元束层，包含多个并行的神经元束"""
+    def __init__(self, in_channels: int, out_channels: int, kernel_size: int, 
+                 num_bundles: int, **kwargs):
         super().__init__()
-        self.N = N
-        self.neuron_bundles = nn.ModuleList([
-            NeuronBundle(in_channels, out_channels, kernel_size, N=N, **kwargs) for _ in range(N)
+        self.bundles = nn.ModuleList([
+            NeuronBundle(in_channels, out_channels, kernel_size=kernel_size, **kwargs) 
+            for _ in range(num_bundles)
         ])
-        # 添加一个卷积层，将 N * out_channels 压缩为 out_channels
-        self.merge_conv = nn.Conv2d(out_channels * N, out_channels, kernel_size=1)
-        self.activation = nn.GELU()
-        self.batchnorm = nn.BatchNorm2d(out_channels)
+        self.merge = ConvBlock(
+            out_channels * num_bundles, 
+            out_channels, 
+            kernel_size=1
+        )
 
-    def forward(self, x):
-        bundle_outputs = [bundle(x) for bundle in self.neuron_bundles]
-        # 将 N 个 bundle 的输出在通道维度上连接
-        concatenated = torch.cat(bundle_outputs, dim=1)
-        # 通过 merge_conv 压缩通道数
-        out = self.merge_conv(concatenated)
-        out = self.activation(out)
-        out = self.batchnorm(out)
-        return out
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        bundle_outputs = [bundle(x) for bundle in self.bundles]
+        return self.merge(torch.cat(bundle_outputs, dim=1))
 
 class Residual(nn.Module):
-    def __init__(self, fn):
+    """残差连接包装器"""
+    def __init__(self, module: nn.Module):
         super().__init__()
-        self.fn = fn
+        self.module = module
 
-    def forward(self, x):
-        return self.fn(x) + x
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.module(x) + x
 
-def ConvMixerWithNeuronBundles(dim, depth, N, kernel_size=9, patch_size=7, n_classes=1000):
-    # 初始维度和层
-    current_dim = dim
-    current_N = N  # 添加current_N来追踪N的变化
-    layers = [
-        nn.Conv2d(3, current_dim, kernel_size=patch_size, stride=patch_size),
-        nn.GELU(),
-        nn.BatchNorm2d(current_dim)
+def create_convmixer(
+    dim: int, 
+    depth: int, 
+    num_bundles: int, 
+    kernel_size: int = 9, 
+    patch_size: int = 7, 
+    num_classes: int = 1000
+) -> nn.Sequential:
+    """创建带有神经元束的ConvMixer模型"""
+    layers: List[nn.Module] = [
+        ConvBlock(3, dim, kernel_size=patch_size, stride=patch_size)
     ]
 
-    # 4个阶段的下采样和通道翻倍
     for stage in range(depth):
-        layers.append(
-            Residual(
-                nn.Sequential(
-                    NeuronBundleLayer(current_dim, current_dim, kernel_size=kernel_size, 
-                                    N=current_N, groups=current_dim, padding="same"),  # 使用current_N
+        # 添加残差块
+        layers.append(Residual(
+            NeuronBundleLayer(
+                dim, dim, 
+                kernel_size=kernel_size,
+                num_bundles=num_bundles,
+                groups=dim, 
+                padding="same"
+            )
+        ))
+        
+        # 在非最后阶段添加下采样层
+        if stage < depth - 1:
+            layers.append(
+                NeuronBundleLayer(
+                    dim, dim * 2,
+                    kernel_size=2,
+                    stride=2,
+                    num_bundles=num_bundles
                 )
             )
-        )
-        
-        # 在每个阶段结束时进行下采样和通道数翻倍（最后一个阶段除外）
-        if stage < depth-1:
-            layers.extend([
-                nn.Sequential(
-                    NeuronBundleLayer(current_dim, current_dim * 2, kernel_size=2, stride=2, N=current_N),  # 使用current_N
-                )
-            ])
-            current_dim *= 2
-            # current_N *= 2  # N也翻倍
+            dim *= 2
 
-    # 最终分类层
+    # 添加分类头
     layers.extend([
         nn.AdaptiveAvgPool2d((1, 1)),
         nn.Flatten(),
-        nn.Linear(current_dim, n_classes)
+        nn.Linear(dim, num_classes)
     ])
 
     return nn.Sequential(*layers)
