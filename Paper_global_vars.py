@@ -3,12 +3,12 @@ import os
 
 class GlobalVars:
     def __init__(self):
-        self.num_epochs = 500
+        self.num_epochs = 300
         # self.input_size = (3, 224, 224)  # astroformer #RDNet
         self.input_size = (3, 32, 32)
         self.max_lr = 0.0005
-        self.train_batch_size = 128 // torch.cuda.device_count()
-        self.test_batch_size = 128
+        self.train_batch_size = 64 // torch.cuda.device_count()
+        self.test_batch_size = 64
         
         # 新增配置
         self.dataset = 'cifar10'
