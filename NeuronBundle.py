@@ -72,14 +72,16 @@ def create_convmixer(
         
         # 在非最后阶段添加下采样层
         if stage < depth - 1:
-            layers.append(
+            layers.extend([
                 NeuronBundleLayer(
                     dim, dim * 2,
-                    kernel_size=2,
-                    stride=2,
-                    num_bundles=num_bundles
-                )
-            )
+                    kernel_size=kernel_size,
+                    num_bundles=num_bundles,
+                    groups=dim, 
+                    padding="same"
+                ),
+                nn.AvgPool2d(kernel_size=2, stride=2),
+            ])
             dim *= 2
 
     # 添加分类头

@@ -37,7 +37,7 @@ if __name__ == "__main__":
     #model_class = globals()[global_vars.model_name]
     # model = model_class().to(device)
     # Initialize the model
-    model = create_convmixer(128,4, 32, 5, 1, 10).to(device)
+    model = create_convmixer(64,4, 32, 5, 4, 10).to(device)
     
     optimizer = getattr(optim, global_vars.optimizer)(
         model.parameters(), 
