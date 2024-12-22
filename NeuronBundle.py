@@ -37,13 +37,18 @@ class NeuronBundleLayer(nn.Module):
         return self.merge(torch.cat(bundle_outputs, dim=1))
 
 class Residual(nn.Module):
-    """残差连接包装器"""
+    """残差连接包装器，支持不同通道数的输入输出"""
     def __init__(self, module: nn.Module):
         super().__init__()
         self.module = module
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.module(x) + x
+        out = self.module(x)
+        if out.size(1) != x.size(1):  # 检查通道数是否不同
+            # 假设输出通道数是输入的整数倍
+            repeat_factor = out.size(1) // x.size(1)
+            x = x.repeat(1, repeat_factor, 1, 1)  # 在通道维度上重复
+        return out + x
 
 def create_convmixer(
     dim: int, 
@@ -73,12 +78,14 @@ def create_convmixer(
         # 在非最后阶段添加下采样层
         if stage < depth - 1:
             layers.extend([
-                NeuronBundleLayer(
-                    dim, dim * 2,
-                    kernel_size=kernel_size,
-                    num_bundles=num_bundles,
-                    groups=dim, 
-                    padding="same"
+                Residual(   
+                    NeuronBundleLayer(
+                        dim, dim * 2,
+                        kernel_size=kernel_size,
+                        num_bundles=num_bundles,
+                        groups=dim, 
+                        padding="same"
+                    )
                 ),
                 nn.AvgPool2d(kernel_size=2, stride=2),
             ])
