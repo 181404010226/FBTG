@@ -98,10 +98,10 @@ if __name__ == "__main__":
             optimizer.zero_grad()
 
             batch_losses.append(batch_loss.item())
-            if (batch_idx + 1) % 100 == 0:
+            if (batch_idx + 1) % 1 == 0:
                 avg_loss = sum(batch_losses[-10:]) / len(batch_losses[-10:])
                 print(f"Batches {batch_idx-8}-{batch_idx+1}/{len(loader_train)}: Avg Loss: {avg_loss:.4f}")
-                print(f"Learning rate: {scheduler.get_last_lr()[0]:.6f}")
+                print(f"Learning rate: {scheduler.get_last_lr()[0]:.8f}")
                 batch_losses = []
 
         scheduler.step()
