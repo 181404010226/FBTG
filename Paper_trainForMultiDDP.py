@@ -7,7 +7,6 @@ import gc
 from torch.cuda.amp import autocast, GradScaler
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-from Paper_Tree import *
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader
 
 torch.set_float32_matmul_precision('high')

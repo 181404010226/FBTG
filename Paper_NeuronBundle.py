@@ -62,7 +62,7 @@ class NeuronBundleLayer(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         bundle_outputs = [bundle(x) for bundle in self.bundles]
-        return self.merge2(self.merge1(torch.cat(bundle_outputs, dim=1)))
+        return self.merge2(self.merge1(torch.cat(bundle_outputs, dim=1))+x)
 
 # class Residual(nn.Module):
 #     """残差连接包装器，支持不同通道数的输入输出"""

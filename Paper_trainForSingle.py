@@ -10,16 +10,14 @@ from torch.cuda.amp import autocast, GradScaler
 import torch.nn.functional as F
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-from Paper_Tree import *
 from torch.utils.data.distributed import DistributedSampler
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader
 import torch
 import torch.optim as optim
 import os
 from Paper_global_vars import global_vars
-from Paper_Tree import *
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader  
-from NeuronBundle import create_convmixer
+from Paper_NeuronBundle import create_convmixer
 
 
 if __name__ == "__main__":
@@ -98,9 +96,9 @@ if __name__ == "__main__":
             optimizer.zero_grad()
 
             batch_losses.append(batch_loss.item())
-            if (batch_idx + 1) % 1 == 0:
-                avg_loss = sum(batch_losses[-10:]) / len(batch_losses[-10:])
-                print(f"Batches {batch_idx-8}-{batch_idx+1}/{len(loader_train)}: Avg Loss: {avg_loss:.4f}")
+            if epoch == 0 or (batch_idx + 1) % 100 == 0:
+                avg_loss = sum(batch_losses) / len(batch_losses)
+                print(f"Batchid {batch_idx+1} batchsize {len(batch_losses)}: Avg Loss: {avg_loss:.4f}")
                 print(f"Learning rate: {scheduler.get_last_lr()[0]:.8f}")
                 batch_losses = []
 
