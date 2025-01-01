@@ -14,8 +14,8 @@ class ConvBlock(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         out = self.batchnorm(self.activation(self.conv(x)))
-        if self.in_channels == self.out_channels:
-            return out + x 
+        # if self.in_channels == self.out_channels:
+        #     return out + x 
         return out
 
 class NeuronBundle(ConvBlock):
@@ -49,15 +49,20 @@ class NeuronBundleLayer(nn.Module):
             NeuronBundle(in_channels, in_channels, kernel_size=kernel_size, **kwargs) 
             for _ in range(num_bundles)
         ])
-        self.merge = ConvBlock(
+        self.merge1 = ConvBlock(
             in_channels * num_bundles, 
+            in_channels, 
+            kernel_size=1
+        )
+        self.merge2 = ConvBlock(
+            in_channels, 
             out_channels, 
             kernel_size=1
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         bundle_outputs = [bundle(x) for bundle in self.bundles]
-        return self.merge(torch.cat(bundle_outputs, dim=1))
+        return self.merge2(self.merge1(torch.cat(bundle_outputs, dim=1)))
 
 # class Residual(nn.Module):
 #     """残差连接包装器，支持不同通道数的输入输出"""
