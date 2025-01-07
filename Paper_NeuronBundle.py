@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 from typing import List, Optional
+import math
+from timm.models.swin_transformer import SwinTransformerBlock
 
 class ConvBlock(nn.Module):
     """基础卷积块，包含卷积、激活函数和批归一化"""
@@ -14,30 +16,85 @@ class ConvBlock(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         out = self.batchnorm(self.activation(self.conv(x)))
-        # if self.in_channels == self.out_channels:
-        #     return out + x 
         return out
 
-class NeuronBundle(ConvBlock):
-    """单个神经元束，支持循环选择不同大小的卷积核"""
-    # 添加类变量来追踪当前使用的卷积核索引
-    current_kernel_index = 0
-    possible_kernel_sizes = [3,5,7,9]
+class NeuronBundle(nn.Module):
+    """增强版神经元束，支持多种神经网络层"""
+    _current_layer_index = 0  # 使用下划线表示这是一个内部类变量
+    _total_layer_types = 4    # 总的层类型数量（3个卷积 + 1个Swin）
+    
+    @classmethod
+    def get_next_layer_index(cls):
+        """获取下一个层索引并更新类变量"""
+        current = cls._current_layer_index
+        cls._current_layer_index = (cls._current_layer_index + 1) % cls._total_layer_types
+        return current
     
     def __init__(self, in_channels: int, out_channels: int, **kwargs):
-        # 移除传入的 kernel_size
-        kernel_size = kwargs.pop('kernel_size', None)
+        super().__init__()
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.swin_initialized = False
         
-        # 循环选择卷积核大小
-        kwargs['kernel_size'] = self.possible_kernel_sizes[self.current_kernel_index]
-        # 更新索引
-        NeuronBundle.current_kernel_index = (self.current_kernel_index + 1) % len(self.possible_kernel_sizes)
+        # 在初始化时获取当前实例应该使用的层索引
+        self.current_layer_index = self.get_next_layer_index()
         
-        # 确保 padding 设置正确
-        if 'padding' not in kwargs:
-            kwargs['padding'] = kwargs['kernel_size'] // 2
+        # 定义基础卷积层
+        self.conv_configs = [
+            {'kernel_size': 3, 'padding': 1, 'groups': in_channels},
+            {'kernel_size': 5, 'padding': 2, 'groups': in_channels},
+            {'kernel_size': 7, 'padding': 3, 'groups': in_channels},
+            {'kernel_size': 9, 'padding': 4, 'groups': in_channels}
+        ]
+        
+        # 只初始化当前需要的层
+        if self.current_layer_index < len(self.conv_configs):
+            # 如果是卷积层，只创建需要的那一个
+            self.layer = ConvBlock(
+                in_channels, 
+                out_channels, 
+                **self.conv_configs[self.current_layer_index]
+            )
+        else:
+            # 如果是Swin Transformer，先设为None，等待第一次forward时初始化
+            self.layer = None
+            # 保存swin transformer的配置
+            self.swin_config = {
+                'dim': in_channels,
+                'num_heads': 4,
+                'window_size': 7,
+                'shift_size': 0,
+                'mlp_ratio': 4.0,
+                'qkv_bias': True,
+                'drop': 0.,
+                'attn_drop': 0.,
+                'drop_path': 0.,
+                'norm_layer': nn.LayerNorm
+            }
+
+    def _init_swin_block(self, H: int, W: int):
+        """根据输入尺寸初始化Swin Transformer块"""
+        self.swin_config['input_resolution'] = (H, W)
+        self.layer = SwinTransformerBlock(**self.swin_config)
+        # 将swin block添加到设备上
+        self.layer = self.layer.to(next(self.parameters()).device)
+        self.swin_initialized = True
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # 如果是Swin Transformer且还未初始化
+        if self.current_layer_index >= len(self.conv_configs) and not self.swin_initialized:
+            _, _, H, W = x.shape
+            self._init_swin_block(H, W)
+        
+        # 处理Swin Transformer的特殊输入格式
+        if isinstance(self.layer, SwinTransformerBlock):
+            B, C, H, W = x.shape
+            x = x.permute(0, 2, 3, 1)  # (B, H, W, C)
+            x = self.layer(x)
+            x = x.permute(0, 3, 1, 2)  # (B, C, H, W)
+            return x
             
-        super().__init__(in_channels, out_channels, **kwargs)
+        return self.layer(x)
 
 class NeuronBundleLayer(nn.Module):
     """神经元束层，包含多个并行的神经元束"""
@@ -45,7 +102,7 @@ class NeuronBundleLayer(nn.Module):
                  num_bundles: int, **kwargs):
         super().__init__()
         self.bundles = nn.ModuleList([
-            NeuronBundle(in_channels, in_channels, kernel_size=kernel_size, **kwargs) 
+            NeuronBundle(in_channels, in_channels) 
             for _ in range(num_bundles)
         ])
         self.merge1 = ConvBlock(
