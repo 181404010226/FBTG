@@ -30,6 +30,9 @@ IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 cifar10_mean = (0.4914, 0.4822, 0.4465)
 cifar10_std = (0.2471, 0.2435, 0.2616)
 
+# ImageNet数据集路径
+IMAGENET_ROOT = '/root/autodl-tmp/imagenet'
+
 # 定义数据配置
 data_config = {
     'input_size':global_vars.input_size,
@@ -69,8 +72,11 @@ def create_train_loader(dataset='cifar10', distributed=False):
         trainset_cifar100 = datasets.CIFAR100(root=root, train=True, download=True, transform=None)
         trainset = trainset_cifar100
         num_classes = 100
+    elif dataset == 'imagenet':
+        trainset = datasets.ImageNet(root=IMAGENET_ROOT, split='train')
+        num_classes = 1000
     else:
-        raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100'")
+        raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100', 'imagenet'")
     
     mixup_args['num_classes'] = num_classes
     mixup_fn = Mixup(**mixup_args)
@@ -116,8 +122,10 @@ def create_valid_loader(dataset='cifar10', distributed=False):
     elif dataset == 'cifar100':
         testset_cifar100 = datasets.CIFAR100(root=root, train=False, download=True, transform=None)
         testset = testset_cifar100
+    elif dataset == 'imagenet':
+        testset = datasets.ImageNet(root=IMAGENET_ROOT, split='val')
     else:
-        raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100'")
+        raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100', 'imagenet'")
     
     valid_data = create_loader(
         testset,
@@ -145,7 +153,7 @@ if __name__ == "__main__":
     for batch in range(3):
         # 获取一批训练数据
         # data_iter = iter(loader_train)
-        loader_train = create_valid_loader(dataset='cifar10',distributed=False)
+        loader_train = create_valid_loader(dataset='imagenet',distributed=False)
         # valid_data = create_valid_loader(dataset='cifar10',distributed=False)
         data_iter = iter(loader_train)
         images, labels = next(data_iter)

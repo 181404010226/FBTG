@@ -11,6 +11,24 @@ VAL_DEST_DIR = '/root/autodl-tmp/imagenet/val'
 DEVKIT_PATH = '/root/autodl-pub/ImageNet/ILSVRC2012/ILSVRC2012_devkit_t12.tar.gz'
 ROOT_DIR = '/root/autodl-tmp/imagenet'
 
+def extract_devkit():
+    print("Extracting devkit...")
+    with tarfile.open(DEVKIT_PATH, 'r:gz') as tar:
+        tar.extractall(ROOT_DIR)
+    
+    # 移动meta文件到正确位置
+    meta_src = os.path.join(ROOT_DIR, 'ILSVRC2012_devkit_t12/data/meta.mat')
+    meta_dst = os.path.join(ROOT_DIR, 'meta.mat')
+    if os.path.exists(meta_src):
+        shutil.move(meta_src, meta_dst)
+    
+    # 移动val标注文件到正确位置
+    val_src = os.path.join(ROOT_DIR, 'ILSVRC2012_devkit_t12/data/ILSVRC2012_validation_ground_truth.txt')
+    val_dst = os.path.join(ROOT_DIR, 'val/ILSVRC2012_validation_ground_truth.txt')
+    if os.path.exists(val_src):
+        os.makedirs(os.path.dirname(val_dst), exist_ok=True)
+        shutil.move(val_src, val_dst)
+
 def extract_train():
     # Training data extraction remains the same
     with open(TRAIN_SRC_DIR, 'rb') as f:
@@ -25,25 +43,55 @@ def extract_train():
             print("#", i, "extract train dataset to >>>", e_path)
             b.extractall(e_path)
 
-def extract_val():
-    # First extract all validation images to a temporary directory
-    temp_val_dir = os.path.join(VAL_DEST_DIR, 'temp')
-    os.makedirs(temp_val_dir, exist_ok=True)
+def organize_val_by_class():
+    """将验证集图片按类别组织到子文件夹中"""
+    print("Organizing validation images into class folders...")
     
+    # 读取验证集标注文件
+    val_anno_path = os.path.join(ROOT_DIR, 'val/ILSVRC2012_validation_ground_truth.txt')
+    with open(val_anno_path, 'r') as f:
+        val_labels = [int(line.strip()) for line in f.readlines()]
+    
+    # 读取类别映射文件
+    meta_path = os.path.join(ROOT_DIR, 'meta.mat')
+    import scipy.io
+    meta = scipy.io.loadmat(meta_path)
+    synsets = meta['synsets']
+    wnids = [str(s[0][1][0]) for s in synsets]
+    
+    # 创建类别文件夹并移动图片
+    for idx, label in enumerate(val_labels, 1):
+        # ImageNet验证集图片命名格式为ILSVRC2012_val_00000001.JPEG
+        src_img = os.path.join(VAL_DEST_DIR, f'ILSVRC2012_val_{idx:08d}.JPEG')
+        if not os.path.exists(src_img):
+            continue
+        
+        # 获取对应的类别文件夹
+        wnid = wnids[label-1]  # label从1开始
+        dst_dir = os.path.join(VAL_DEST_DIR, wnid)
+        os.makedirs(dst_dir, exist_ok=True)
+        
+        # 移动图片到对应类别文件夹
+        dst_img = os.path.join(dst_dir, f'ILSVRC2012_val_{idx:08d}.JPEG')
+        shutil.move(src_img, dst_img)
+        if idx % 1000 == 0:
+            print(f"Processed {idx} validation images")
+
+def extract_val():
+    # 首先解压所有验证集图片到临时目录
+    print("Extracting validation images...")
     with open(VAL_SRC_DIR, 'rb') as f:
         tar = tarfile.open(fileobj=f, mode='r:')
-        tar.extractall(temp_val_dir)
-
-    # Copy devkit to root directory
-    shutil.copy2(DEVKIT_PATH, os.path.join(ROOT_DIR, 'ILSVRC2012_devkit_t12.tar.gz'))
-
-    # Use torchvision's built-in function to organize validation data
-    dataset = ImageNet(ROOT_DIR, split='val')
+        if not os.path.isdir(VAL_DEST_DIR):
+            os.makedirs(VAL_DEST_DIR)
+        tar.extractall(VAL_DEST_DIR)
     
-    # Clean up temporary directory
-    shutil.rmtree(temp_val_dir)
+    # 然后将图片组织到类别文件夹中
+    organize_val_by_class()
 
 if __name__ == '__main__':
     os.makedirs(ROOT_DIR, exist_ok=True)
-    extract_train()
+    # 首先解压devkit
+    extract_devkit()
+    # extract_train()
     extract_val()
