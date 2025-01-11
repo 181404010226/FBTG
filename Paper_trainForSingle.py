@@ -18,7 +18,8 @@ import os
 from Paper_global_vars import global_vars
 from Paper_DataSetCIFAR import create_train_loader, create_valid_loader  
 from Paper_NeuronBundle import create_convmixer
-
+from timm.models.swin_transformer import SwinTransformerBlock
+from torch.nn import TransformerEncoderLayer, LayerNorm
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -31,21 +32,65 @@ if __name__ == "__main__":
     print(f"Number of available GPUs: {num_gpus}")
     print(f"Using device: {device}")
 
-    # 初始化模型
-    #model_class = globals()[global_vars.model_name]
-    # model = model_class().to(device)
     # Initialize the model
     model = create_convmixer(64,4, 32, 5, 4, 10).to(device)
+
+     # Do a dummy forward pass to initialize all layers
+    with torch.no_grad():
+        dummy_input = torch.randn(1, *global_vars.input_size).to(device)
+        _ = model(dummy_input)
+
+    # 将参数分组，为CNN和Transformer设置不同的学习率
+    transformer_params = []
+    cnn_params = []
+    other_params = []
+
+
+    for name, param in model.named_parameters():
+        if any(isinstance(m, TransformerEncoderLayer) for m in [module for module in model.modules()]):
+            if any(n in name for n in ['self_attn', 'linear', 'norm']):
+                transformer_params.append(param)
+            else:
+                other_params.append(param)
+        else:
+            if 'conv' in name or 'batchnorm' in name:
+                cnn_params.append(param)
+            else:
+                other_params.append(param)
+
+    # for name, param in model.named_parameters():
+    #     if any(isinstance(m, SwinTransformerBlock) for m in [module for module in model.modules()]):
+    #         if any(n in name for n in ['attn', 'mlp', 'norm']):
+    #             transformer_params.append(param)
+    #         else:
+    #             other_params.append(param)
+    #     else:
+    #         if 'conv' in name or 'batchnorm' in name:
+    #             cnn_params.append(param)
+    #         else:
+    #             other_params.append(param)
+
+    # Print parameter counts for each group
+    print(f"Number of transformer parameters: {sum(p.numel() for p in transformer_params):,}")
+    print(f"Number of CNN parameters: {sum(p.numel() for p in cnn_params):,}")
+    print(f"Number of other parameters: {sum(p.numel() for p in other_params):,}")
+
+    # 设置不同的学习率
+    param_groups = [
+        {'params': transformer_params, 'lr': global_vars.max_lr * 0.2},  # Transformer层使用较小的学习率
+        {'params': cnn_params, 'lr': global_vars.max_lr},  # CNN层使用正常学习率
+        {'params': other_params, 'lr': global_vars.max_lr}  # 其他层使用正常学习率
+    ]
     
     optimizer = getattr(optim, global_vars.optimizer)(
-        model.parameters(), 
-        lr=global_vars.max_lr, 
+        param_groups,
         weight_decay=0.001
     )
 
+    # 为每个参数组设置不同的学习率调度
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer=optimizer,
-        max_lr=global_vars.max_lr,
+        max_lr=[group['lr'] for group in param_groups],
         total_steps=global_vars.num_epochs,
         pct_start=0.3,
         anneal_strategy='cos',
@@ -99,7 +144,7 @@ if __name__ == "__main__":
             if epoch == 0 or (batch_idx + 1) % 100 == 0:
                 avg_loss = sum(batch_losses) / len(batch_losses)
                 print(f"Batchid {batch_idx+1} batchsize {len(batch_losses)}: Avg Loss: {avg_loss:.4f}")
-                print(f"Learning rate: {scheduler.get_last_lr()[0]:.8f}")
+                print("Learning rates:", [f"{lr:.8f}" for lr in scheduler.get_last_lr()])
                 batch_losses = []
 
         scheduler.step()
