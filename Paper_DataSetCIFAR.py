@@ -64,13 +64,40 @@ root = os.path.join(os.path.dirname(__file__), "CIFAR10RawData")
 def create_train_loader(dataset='cifar10', distributed=False):
     global loader_train
     
+    # 为不同数据集定义最优的增强配置
+    augmentation_config = {
+        'cifar10': {
+            'scale': (0.75, 1.0),
+            're_prob': 0.25,
+            'auto_augment': 'rand-m9-mstd0.5-inc1',
+            'color_jitter': 0.4,
+            'mean': cifar10_mean,
+            'std': cifar10_std,
+        },
+        'cifar100': {
+            'scale': (0.75, 1.0),
+            're_prob': 0.25,
+            'auto_augment': 'rand-m9-mstd0.5-inc1',
+            'color_jitter': 0.4,
+            'mean': cifar10_mean,  
+            'std': cifar10_std,
+        },
+        'imagenet': {
+            'scale': (0.08, 1.0),
+            're_prob': 0.5,
+            'auto_augment': 'rand-m9-mstd0.5-inc1',
+            'color_jitter': 0.4,
+            'mean': IMAGENET_DEFAULT_MEAN,
+            'std': IMAGENET_DEFAULT_STD,
+        }
+    }
+
+    # 选择数据集
     if dataset == 'cifar10':
-        trainset_cifar10 = datasets.CIFAR10(root=root, train=True, download=True, transform=None)
-        trainset = trainset_cifar10
+        trainset = datasets.CIFAR10(root=root, train=True, download=True, transform=None)
         num_classes = 10
     elif dataset == 'cifar100':  
-        trainset_cifar100 = datasets.CIFAR100(root=root, train=True, download=True, transform=None)
-        trainset = trainset_cifar100
+        trainset = datasets.CIFAR100(root=root, train=True, download=True, transform=None)
         num_classes = 100
     elif dataset == 'imagenet':
         trainset = datasets.ImageNet(root=IMAGENET_ROOT, split='train')
@@ -78,9 +105,13 @@ def create_train_loader(dataset='cifar10', distributed=False):
     else:
         raise ValueError("Invalid dataset. Choose 'cifar10', 'cifar100', 'imagenet'")
     
+    # 更新mixup配置
     mixup_args['num_classes'] = num_classes
     mixup_fn = Mixup(**mixup_args)
     collate_fn = partial(collate_mixup_fn, mixup_fn=mixup_fn)
+    
+    # 获取当前数据集的增强配置
+    aug_config = augmentation_config[dataset]
     
     loader_train = create_loader(
         trainset,
@@ -89,19 +120,19 @@ def create_train_loader(dataset='cifar10', distributed=False):
         is_training=True,
         use_prefetcher=False,
         no_aug=False,
-        re_prob=0.25,
+        re_prob=aug_config['re_prob'],
         re_mode='pixel',
         re_count=1,
-        scale=(0.75, 1.0),
+        scale=aug_config['scale'],
         ratio=(3./4., 4./3.),
         hflip=0.5,
         vflip=0.,
-        color_jitter=0.4,
-        auto_augment='rand-m9-mstd0.5-inc1',
+        color_jitter=aug_config['color_jitter'],
+        auto_augment=aug_config['auto_augment'],
         num_aug_splits=0,
         interpolation=data_config['interpolation'],
-        mean=data_config['mean'],
-        std=data_config['std'],
+        mean=aug_config['mean'],
+        std=aug_config['std'],
         num_workers=8,
         distributed=distributed,
         crop_pct=data_config['crop_pct'],       

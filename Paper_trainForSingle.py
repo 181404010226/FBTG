@@ -33,7 +33,7 @@ if __name__ == "__main__":
     print(f"Using device: {device}")
 
     # Initialize the model
-    model = create_convmixer(64,4, 32, 5, 4, 10).to(device)
+    model = create_convmixer(64,4, 32, 5, 4, 1000).to(device)
 
      # Do a dummy forward pass to initialize all layers
     with torch.no_grad():
@@ -141,9 +141,15 @@ if __name__ == "__main__":
             optimizer.zero_grad()
 
             batch_losses.append(batch_loss.item())
-            if epoch == 0 or (batch_idx + 1) % 100 == 0:
+            total_batches = len(loader_train)
+            
+            if epoch == 0 and batch_idx < 100:
+                # For epoch 0, print first 100 batches individually
+                print(f"Batch {batch_idx+1}/{total_batches}: Loss: {batch_loss.item():.4f}")
+            elif (batch_idx + 1) % 100 == 0:
+                # For other epochs, print average every 100 batches
                 avg_loss = sum(batch_losses) / len(batch_losses)
-                print(f"Batchid {batch_idx+1} batchsize {len(batch_losses)}: Avg Loss: {avg_loss:.4f}")
+                print(f"Batch {batch_idx+1}/{total_batches}: Avg Loss: {avg_loss:.4f}")
                 print("Learning rates:", [f"{lr:.8f}" for lr in scheduler.get_last_lr()])
                 batch_losses = []
 
