@@ -33,7 +33,7 @@ if __name__ == "__main__":
     print(f"Using device: {device}")
 
     # Initialize the model
-    model = create_convmixer(64,4, 32, 5, 4, 1000).to(device)
+    model = create_convmixer(256,4, 8, 5, 4, 10).to(device)
 
      # Do a dummy forward pass to initialize all layers
     with torch.no_grad():

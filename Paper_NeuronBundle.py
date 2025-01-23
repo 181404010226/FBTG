@@ -23,7 +23,7 @@ class ConvBlock(nn.Module):
 class NeuronBundle(nn.Module):
     """增强版神经元束，支持多种神经网络层"""
     _current_layer_index = 0  # 使用下划线表示这是一个内部类变量
-    _total_layer_types = 9    # 总的层类型数量（4个卷积 + 1个Swin）
+    _total_layer_types = 8    # 总的层类型数量（4个卷积 + 1个Swin）
     
     @classmethod
     def get_next_layer_index(cls):
