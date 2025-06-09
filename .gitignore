@@ -12,3 +12,4 @@ STL10Data
 !loss/perceptual_similarity/weights/v0.1/squeeze.pth
 !loss/perceptual_similarity/weights/v0.1/alex.pth
 CompressionPaperRead/
+data

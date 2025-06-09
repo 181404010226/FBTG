@@ -1,0 +1,7 @@
+﻿数据集,模型,参数量(M),Top-1 Acc(%),Top-5 Acc(%),训练轮数,训练时间(h),备注
+CIFAR10,NeuronBundleNet,13.07,94.0,-,300,3.3,已完成
+CIFAR10,ResNet18,11.17,94.13,-,300,0.57,已完成
+CIFAR10,EfficientNet-B0,4.02,83.29,-,300,0.56,已完成
+CIFAR10,MobileNetV2,2.24,79.81,-,300,0.45,已完成
+CIFAR10,MobileNetV3-Small,1.53,77.43,-,300,0.43,已完成
+CIFAR10,GhostNet,3.91,83.89,-,300,0.66,已完成

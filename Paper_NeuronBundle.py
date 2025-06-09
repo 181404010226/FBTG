@@ -67,7 +67,7 @@ class NeuronBundleLayer(nn.Module):
             bundle_output = bundle(bundle_input)
             bundle_outputs.append(bundle_output)
             # 当前输出加到下一个bundle的输入
-            bundle_input = bundle_output + x
+            # bundle_input = bundle_output + x
             
         # 将所有bundle的输出拼接并通过1x1卷积融合
         return self.merge2(self.merge1(torch.cat(bundle_outputs, dim=1)))
@@ -94,7 +94,7 @@ def create_convmixer(
 
     # 初始化层
     layers: List[nn.Module] = [
-        ConvBlock(3, dim, kernel_size=patch_size, stride=patch_size)
+        ConvBlock(3, dim, kernel_size=patch_size,  stride=patch_size)
     ]
 
     # 构建主干网络
