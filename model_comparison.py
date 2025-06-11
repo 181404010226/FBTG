@@ -1,4 +1,4 @@
- #!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 模型性能对比训练系统
 对比NeuronBundle模型与timm库中经典模型的性能
@@ -54,42 +54,42 @@ class ModelComparison:
             'NeuronBundleNet': {
                 'constructor': self._create_neuron_bundle,
                 'params': {'dim': 64, 'depth': 4, 'num_bundles': 16, 'kernel_size': 5},
-                'batch_size': 256
+                'batch_size': 64
             },
-            'ResNet18': {
+            'ResNet152': {
                 'constructor': self._create_timm_model,
-                'params': {'model_name': 'resnet18', 'pretrained': False},
-                'batch_size': 256
+                'params': {'model_name': 'resnet50', 'pretrained': False},
+                'batch_size': 64
             },
-            'EfficientNet-B2': {
+            'EfficientNet-B6': {
                 'constructor': self._create_timm_model,
-                'params': {'model_name': 'efficientnet_b2', 'pretrained': False},
-                'batch_size': 256
+                'params': {'model_name': 'efficientnet_b6', 'pretrained': False},
+                'batch_size': 64
             },
-            'MobileNetV2-140': {
+            'Inception-v4': {
                 'constructor': self._create_timm_model,
-                'params': {'model_name': 'mobilenetv2_140', 'pretrained': False},
-                'batch_size': 256
+                'params': {'model_name': 'inception_v4', 'pretrained': False},
+                'batch_size': 64
             },
-            'MobileNetV3-Large': {
+            'RegNetX-120': {
                 'constructor': self._create_timm_model,
-                'params': {'model_name': 'mobilenetv3_large_100', 'pretrained': False},
-                'batch_size': 256
+                'params': {'model_name': 'regnetx_120', 'pretrained': False},
+                'batch_size': 64
             },
-            'RegNetX-800MF': {
+            'RegNetX-160': {
                 'constructor': self._create_timm_model,
-                'params': {'model_name': 'regnetx_800mf', 'pretrained': False},
-                'batch_size': 256
+                'params': {'model_name': 'regnetx_160', 'pretrained': False},
+                'batch_size': 64
             },
-            'DenseNet121': {
+            'Wide-ResNet50': {
                 'constructor': self._create_timm_model,
-                'params': {'model_name': 'densenet121', 'pretrained': False},
-                'batch_size': 256
+                'params': {'model_name': 'wide_resnet50_2', 'pretrained': False},
+                'batch_size': 64
             },
-            'GhostNet-130': {
+            'DenseNet161': {
                 'constructor': self._create_timm_model,
-                'params': {'model_name': 'ghostnet_130', 'pretrained': False},
-                'batch_size': 256
+                'params': {'model_name': 'densenet161', 'pretrained': False},
+                'batch_size': 64
             }
         }
         
