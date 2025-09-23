@@ -69,6 +69,9 @@ if __name__ == "__main__":
         if is_tree_model:
             print(f"\n=== Epoch {epoch+1}/{global_vars.num_epochs} - Batch-level Pipeline Training ===")
             
+            # 清空缓存以释放显存
+            model.clear_cache()
+            
             model.train()
             batch_losses = []
             train_correct = 0
