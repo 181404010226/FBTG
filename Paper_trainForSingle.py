@@ -61,51 +61,95 @@ if __name__ == "__main__":
     # Initialize GradScaler
     scaler = GradScaler()
 
+    # 检查是否是树模型，如果是则使用流水线训练
+    is_tree_model = hasattr(model, 'isTree') and model.isTree
+    num_nodes = len(model.nodes) if is_tree_model else 1
+
     for epoch in range(global_vars.num_epochs):
-        # Training phase
-        model.train()
-        batch_losses = []
-        train_correct = 0
-        train_total = 0
-
-        for batch_idx, (data, target) in enumerate(loader_train):
-            data, target = data.to(device), target.to(device)
-
-            with autocast():
-                outputs = model(data)
+        if is_tree_model:
+            print(f"\n=== Epoch {epoch+1}/{global_vars.num_epochs} - Batch-level Pipeline Training ===")
+            
+            model.train()
+            batch_losses = []
+            train_correct = 0
+            train_total = 0
+            
+            for batch_idx, (data, target) in enumerate(loader_train):
+                data, target = data.to(device), target.to(device)
                 
-                if hasattr(model, 'isTree') and model.isTree:
-                    if (epoch==0 and batch_idx==0):
-                        print("SequentialDecisionTree")
-                    normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
-                    batch_loss = torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
-                else:
-                    if (epoch==0 and batch_idx==0):
-                        print("single model")
+                # 在每个batch中依次训练每个节点
+                for node_idx in range(num_nodes):
+                    model.set_training_mode('pipeline', node_idx)
+                    
+                    with autocast():
+                        outputs = model(data, batch_id=batch_idx, node_idx=node_idx)
+                        normalized_probs = outputs / outputs.sum(dim=1, keepdim=True)
+                        batch_loss = torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
+                    
+                    scaler.scale(batch_loss).backward()
+                    scaler.unscale_(optimizer)
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+                    scaler.step(optimizer)
+                    scaler.update()
+                    optimizer.zero_grad()
+                    
+                    batch_losses.append(batch_loss.item())
+                
+                # 计算准确率（使用最后一个节点的输出）
+                model.set_training_mode('normal')
+                with torch.no_grad():
+                    final_outputs = model(data)
+                    predicted_labels = final_outputs.argmax(dim=1)
+                    train_correct += (predicted_labels == target.argmax(dim=1)).sum().item()
+                    train_total += len(target)
+                
+                if (batch_idx + 1) % 10 == 0:
+                    avg_loss = sum(batch_losses[-10*num_nodes:]) / len(batch_losses[-10*num_nodes:])
+                    print(f"Batches {batch_idx-8}-{batch_idx+1}/{len(loader_train)}: Avg Loss: {avg_loss:.4f}")
+                    batch_losses = []
+            
+        else:
+            # 原有的单模型训练逻辑
+            print(f"\n=== Epoch {epoch+1}/{global_vars.num_epochs} - Single Model Training ===")
+            # Training phase
+            model.train()
+            batch_losses = []
+            train_correct = 0
+            train_total = 0
+
+            for batch_idx, (data, target) in enumerate(loader_train):
+                data, target = data.to(device), target.to(device)
+
+                with autocast():
+                    outputs = model(data)
                     batch_loss = torch.sum(-target * F.log_softmax(outputs, dim=-1), dim=-1).mean()
-              
-                predicted_labels = outputs.argmax(dim=1)
-                train_correct += (predicted_labels == target.argmax(dim=1)).sum().item()
-                train_total += len(target)
+                  
+                    predicted_labels = outputs.argmax(dim=1)
+                    train_correct += (predicted_labels == target.argmax(dim=1)).sum().item()
+                    train_total += len(target)
 
-            scaler.scale(batch_loss).backward()
-            scaler.unscale_(optimizer)
-            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-            scaler.step(optimizer)
-            scaler.update()
-            optimizer.zero_grad()
+                scaler.scale(batch_loss).backward()
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+                scaler.step(optimizer)
+                scaler.update()
+                optimizer.zero_grad()
 
-            batch_losses.append(batch_loss.item())
-            if (batch_idx + 1) % 10 == 0:
-                avg_loss = sum(batch_losses[-10:]) / len(batch_losses[-10:])
-                print(f"Batches {batch_idx-8}-{batch_idx+1}/{len(loader_train)}: Avg Loss: {avg_loss:.4f}")
-                print(f"Learning rate: {scheduler.get_last_lr()[0]:.6f}")
-                batch_losses = []
+                batch_losses.append(batch_loss.item())
+                if (batch_idx + 1) % 10 == 0:
+                    avg_loss = sum(batch_losses[-10:]) / len(batch_losses[-10:])
+                    print(f"Batches {batch_idx-8}-{batch_idx+1}/{len(loader_train)}: Avg Loss: {avg_loss:.4f}")
+                    print(f"Learning rate: {scheduler.get_last_lr()[0]:.6f}")
+                    batch_losses = []
 
         scheduler.step()
         
+        # 验证阶段保持不变
+        if is_tree_model:
+            model.set_training_mode('normal')  # 验证时使用正常模式
+        
         train_accuracy = train_correct / train_total if train_total > 0 else 0
-        print(f"Epoch {epoch+1}/{global_vars.num_epochs} - Train Accuracy: {train_accuracy:.4f}({train_correct}/{train_total})")
+        print(f"Epoch {epoch+1}/{global_vars.num_epochs} - Overall Train Accuracy: {train_accuracy:.4f}({train_correct}/{train_total})")
 
         # Validation phase
         model.eval()

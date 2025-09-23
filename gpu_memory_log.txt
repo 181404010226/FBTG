@@ -1,0 +1,1762 @@
+GPU Memory Monitoring Started at 2025-09-23 08:46:09.141634
+============================================================
+
+=== 2025-09-23 08:46:09 (Elapsed: 103.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22250.5 MB (6.6%)
+  Available: 481482.6 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:46:14 (Elapsed: 108.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22272.6 MB (6.6%)
+  Available: 481566.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:46:19 (Elapsed: 113.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22291.2 MB (6.6%)
+  Available: 481519.4 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:46:24 (Elapsed: 118.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22298.6 MB (6.6%)
+  Available: 481527.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:46:29 (Elapsed: 123.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22370.0 MB (6.6%)
+  Available: 481469.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:46:34 (Elapsed: 128.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22376.7 MB (6.6%)
+  Available: 481424.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:46:39 (Elapsed: 133.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22367.5 MB (6.6%)
+  Available: 481436.2 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:46:44 (Elapsed: 138.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22285.6 MB (6.6%)
+  Available: 481553.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:46:49 (Elapsed: 143.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22337.8 MB (6.6%)
+  Available: 481468.7 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:46:54 (Elapsed: 148.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20771.1 MB (6.3%)
+  Available: 483102.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:46:59 (Elapsed: 153.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20822.7 MB (6.3%)
+  Available: 482955.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:04 (Elapsed: 158.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20808.8 MB (6.3%)
+  Available: 483156.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:09 (Elapsed: 163.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 21116.2 MB (6.3%)
+  Available: 483113.6 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:14 (Elapsed: 168.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22210.8 MB (6.6%)
+  Available: 481629.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:19 (Elapsed: 173.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22201.5 MB (6.6%)
+  Available: 481638.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:24 (Elapsed: 178.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22196.2 MB (6.6%)
+  Available: 481718.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:29 (Elapsed: 183.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22482.3 MB (6.6%)
+  Available: 481336.2 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:34 (Elapsed: 188.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22333.7 MB (6.6%)
+  Available: 481506.7 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:39 (Elapsed: 193.9s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22330.8 MB (6.6%)
+  Available: 481486.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:44 (Elapsed: 199.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22322.6 MB (6.6%)
+  Available: 481421.4 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:49 (Elapsed: 204.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22316.9 MB (6.6%)
+  Available: 481522.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:54 (Elapsed: 209.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22309.9 MB (6.6%)
+  Available: 481507.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:47:59 (Elapsed: 214.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22278.1 MB (6.6%)
+  Available: 481561.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:04 (Elapsed: 219.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22280.8 MB (6.6%)
+  Available: 481558.4 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:09 (Elapsed: 224.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22278.1 MB (6.6%)
+  Available: 481465.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:14 (Elapsed: 229.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22268.4 MB (6.6%)
+  Available: 481455.2 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:19 (Elapsed: 234.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22263.6 MB (6.6%)
+  Available: 481672.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:24 (Elapsed: 239.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22213.8 MB (6.6%)
+  Available: 481691.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:29 (Elapsed: 244.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22632.2 MB (6.7%)
+  Available: 481180.2 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:34 (Elapsed: 249.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22402.8 MB (6.6%)
+  Available: 481436.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:39 (Elapsed: 254.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22398.8 MB (6.6%)
+  Available: 481423.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:44 (Elapsed: 259.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22364.7 MB (6.6%)
+  Available: 481474.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:49 (Elapsed: 264.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22352.0 MB (6.6%)
+  Available: 481487.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:54 (Elapsed: 269.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22426.9 MB (6.6%)
+  Available: 481316.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:48:59 (Elapsed: 274.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22325.6 MB (6.6%)
+  Available: 481514.2 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:04 (Elapsed: 279.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22292.9 MB (6.6%)
+  Available: 481525.6 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:09 (Elapsed: 284.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22298.8 MB (6.6%)
+  Available: 481519.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:14 (Elapsed: 289.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22294.7 MB (6.6%)
+  Available: 481527.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:19 (Elapsed: 294.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22252.9 MB (6.6%)
+  Available: 481586.4 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:24 (Elapsed: 299.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22246.4 MB (6.6%)
+  Available: 481688.7 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:29 (Elapsed: 304.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22587.8 MB (6.7%)
+  Available: 481251.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:34 (Elapsed: 309.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22367.4 MB (6.6%)
+  Available: 481472.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:39 (Elapsed: 314.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22349.7 MB (6.6%)
+  Available: 481393.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:44 (Elapsed: 319.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22348.1 MB (6.6%)
+  Available: 481492.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:49 (Elapsed: 324.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22350.7 MB (6.6%)
+  Available: 481393.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:54 (Elapsed: 329.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22305.6 MB (6.6%)
+  Available: 481534.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:49:59 (Elapsed: 334.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22301.8 MB (6.6%)
+  Available: 481537.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:04 (Elapsed: 339.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22308.3 MB (6.6%)
+  Available: 481530.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:09 (Elapsed: 344.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22338.2 MB (6.6%)
+  Available: 481501.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:14 (Elapsed: 349.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22364.4 MB (6.6%)
+  Available: 481445.0 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:19 (Elapsed: 354.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22314.1 MB (6.6%)
+  Available: 481525.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:24 (Elapsed: 359.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22291.4 MB (6.6%)
+  Available: 481548.2 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:29 (Elapsed: 364.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22568.7 MB (6.6%)
+  Available: 481342.7 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:34 (Elapsed: 369.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22341.0 MB (6.6%)
+  Available: 481594.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:39 (Elapsed: 374.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22332.4 MB (6.6%)
+  Available: 481508.0 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:44 (Elapsed: 379.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22311.7 MB (6.6%)
+  Available: 481508.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:49 (Elapsed: 384.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22335.5 MB (6.6%)
+  Available: 481504.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:54 (Elapsed: 389.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22284.2 MB (6.6%)
+  Available: 481555.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:50:59 (Elapsed: 394.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22273.7 MB (6.6%)
+  Available: 481466.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:04 (Elapsed: 399.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22266.0 MB (6.5%)
+  Available: 481913.7 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:09 (Elapsed: 404.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22267.0 MB (6.6%)
+  Available: 481572.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:14 (Elapsed: 409.0s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22257.9 MB (6.6%)
+  Available: 481581.2 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:19 (Elapsed: 414.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22259.0 MB (6.6%)
+  Available: 481533.4 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:24 (Elapsed: 419.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22279.1 MB (6.6%)
+  Available: 481559.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:29 (Elapsed: 424.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22556.8 MB (6.7%)
+  Available: 481276.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:34 (Elapsed: 429.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22310.7 MB (6.6%)
+  Available: 481507.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:39 (Elapsed: 434.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22341.2 MB (6.6%)
+  Available: 481478.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:44 (Elapsed: 439.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22246.0 MB (6.6%)
+  Available: 481593.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:49 (Elapsed: 444.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22276.5 MB (6.6%)
+  Available: 481563.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:54 (Elapsed: 449.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22301.6 MB (6.6%)
+  Available: 481537.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:51:59 (Elapsed: 454.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22299.6 MB (6.6%)
+  Available: 481539.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:04 (Elapsed: 459.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22318.4 MB (6.6%)
+  Available: 481496.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:09 (Elapsed: 464.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22249.3 MB (6.6%)
+  Available: 481585.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:14 (Elapsed: 469.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22238.4 MB (6.6%)
+  Available: 481601.2 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:19 (Elapsed: 474.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22245.2 MB (6.6%)
+  Available: 481498.2 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:24 (Elapsed: 479.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22244.7 MB (6.6%)
+  Available: 481514.4 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:29 (Elapsed: 484.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22539.7 MB (6.6%)
+  Available: 481393.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:34 (Elapsed: 489.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22301.6 MB (6.6%)
+  Available: 481538.2 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:39 (Elapsed: 494.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22299.7 MB (6.6%)
+  Available: 481536.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:44 (Elapsed: 499.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22243.5 MB (6.6%)
+  Available: 481672.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:49 (Elapsed: 504.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22318.2 MB (6.6%)
+  Available: 481445.0 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:54 (Elapsed: 509.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22308.0 MB (6.6%)
+  Available: 481531.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:52:59 (Elapsed: 514.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22292.8 MB (6.6%)
+  Available: 481642.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:04 (Elapsed: 519.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22288.0 MB (6.6%)
+  Available: 481548.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:09 (Elapsed: 524.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22280.1 MB (6.6%)
+  Available: 481560.0 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:14 (Elapsed: 529.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22254.9 MB (6.6%)
+  Available: 481584.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:19 (Elapsed: 534.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22245.6 MB (6.6%)
+  Available: 481572.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:24 (Elapsed: 539.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22255.3 MB (6.6%)
+  Available: 481680.2 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:29 (Elapsed: 544.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22505.6 MB (6.6%)
+  Available: 481415.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:34 (Elapsed: 549.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22326.5 MB (6.6%)
+  Available: 481500.4 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:39 (Elapsed: 554.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22322.7 MB (6.6%)
+  Available: 481516.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:44 (Elapsed: 559.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22310.6 MB (6.6%)
+  Available: 481526.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:49 (Elapsed: 564.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22316.9 MB (6.6%)
+  Available: 481515.7 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:54 (Elapsed: 569.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22320.0 MB (6.6%)
+  Available: 481524.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:53:59 (Elapsed: 574.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22418.7 MB (6.6%)
+  Available: 481401.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:04 (Elapsed: 579.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22393.9 MB (6.6%)
+  Available: 481524.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:09 (Elapsed: 584.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22367.0 MB (6.6%)
+  Available: 481472.5 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:14 (Elapsed: 589.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22398.8 MB (6.6%)
+  Available: 481440.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:19 (Elapsed: 594.1s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22371.4 MB (6.6%)
+  Available: 481468.4 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:24 (Elapsed: 599.2s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 22374.1 MB (6.6%)
+  Available: 481393.7 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:29 (Elapsed: 604.2s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20904.3 MB (6.3%)
+  Available: 482950.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:34 (Elapsed: 609.2s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20773.9 MB (6.3%)
+  Available: 483004.6 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:39 (Elapsed: 614.2s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20763.9 MB (6.3%)
+  Available: 483109.6 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:44 (Elapsed: 619.2s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20762.1 MB (6.3%)
+  Available: 483091.0 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:49 (Elapsed: 624.2s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20800.4 MB (6.3%)
+  Available: 483053.3 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:54 (Elapsed: 629.2s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20752.0 MB (6.3%)
+  Available: 483115.7 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:54:59 (Elapsed: 634.2s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20744.6 MB (6.3%)
+  Available: 483285.1 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:55:04 (Elapsed: 639.2s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20742.1 MB (6.3%)
+  Available: 483227.9 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:55:09 (Elapsed: 644.2s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20728.8 MB (6.3%)
+  Available: 483144.8 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+
+
+=== 2025-09-23 08:55:14 (Elapsed: 649.2s) ===
+System Memory:
+  Total: 515585.9 MB
+  Used: 20721.4 MB (6.3%)
+  Available: 483138.0 MB
+
+GPU_0 Memory:
+  Allocated: 0.0 MB
+  Reserved: 0.0 MB
+  Max Allocated: 0.0 MB
+  Max Reserved: 0.0 MB
+  Total: 24217.3 MB
+  Free: 24217.3 MB
+  Usage: 0.0%
+

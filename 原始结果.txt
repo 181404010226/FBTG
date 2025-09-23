@@ -1,0 +1,160 @@
+SequentialDecisionTree
+Batches 1-10/781: Avg Loss: 2.2597
+Learning rate: 0.000200
+Batches 11-20/781: Avg Loss: 2.2228
+Learning rate: 0.000200
+Batches 21-30/781: Avg Loss: 2.2340
+Learning rate: 0.000200
+Batches 31-40/781: Avg Loss: 2.2117
+Learning rate: 0.000200
+Batches 41-50/781: Avg Loss: 2.2155
+Learning rate: 0.000200
+Batches 51-60/781: Avg Loss: 2.1642
+Learning rate: 0.000200
+Batches 61-70/781: Avg Loss: 2.1144
+Learning rate: 0.000200
+Batches 71-80/781: Avg Loss: 2.2120
+Learning rate: 0.000200
+Batches 81-90/781: Avg Loss: 2.1420
+Learning rate: 0.000200
+Batches 91-100/781: Avg Loss: 2.1466
+Learning rate: 0.000200
+Batches 101-110/781: Avg Loss: 2.1493
+Learning rate: 0.000200
+Batches 111-120/781: Avg Loss: 2.1343
+Learning rate: 0.000200
+Batches 121-130/781: Avg Loss: 2.1394
+Learning rate: 0.000200
+Batches 131-140/781: Avg Loss: 2.1456
+Learning rate: 0.000200
+Batches 141-150/781: Avg Loss: 2.1110
+Learning rate: 0.000200
+Batches 151-160/781: Avg Loss: 2.1446
+Learning rate: 0.000200
+Batches 161-170/781: Avg Loss: 2.0890
+Learning rate: 0.000200
+Batches 171-180/781: Avg Loss: 2.1162
+Learning rate: 0.000200
+Batches 181-190/781: Avg Loss: 2.1448
+Learning rate: 0.000200
+Batches 191-200/781: Avg Loss: 2.1468
+Learning rate: 0.000200
+Batches 201-210/781: Avg Loss: 2.1125
+Learning rate: 0.000200
+Batches 211-220/781: Avg Loss: 2.0503
+Learning rate: 0.000200
+Batches 221-230/781: Avg Loss: 2.1197
+Learning rate: 0.000200
+Batches 231-240/781: Avg Loss: 2.1314
+Learning rate: 0.000200
+Batches 241-250/781: Avg Loss: 2.0621
+Learning rate: 0.000200
+Batches 251-260/781: Avg Loss: 2.0680
+Learning rate: 0.000200
+Batches 261-270/781: Avg Loss: 2.0729
+Learning rate: 0.000200
+Batches 271-280/781: Avg Loss: 2.1144
+Learning rate: 0.000200
+Batches 281-290/781: Avg Loss: 2.0584
+Learning rate: 0.000200
+Batches 291-300/781: Avg Loss: 2.0616
+Learning rate: 0.000200
+Batches 301-310/781: Avg Loss: 2.0993
+Learning rate: 0.000200
+Batches 311-320/781: Avg Loss: 2.1265
+Learning rate: 0.000200
+Batches 321-330/781: Avg Loss: 2.1157
+Learning rate: 0.000200
+Batches 331-340/781: Avg Loss: 2.0652
+Learning rate: 0.000200
+Batches 341-350/781: Avg Loss: 2.0743
+Learning rate: 0.000200
+Batches 351-360/781: Avg Loss: 2.0556
+Learning rate: 0.000200
+Batches 361-370/781: Avg Loss: 2.0848
+Learning rate: 0.000200
+Batches 371-380/781: Avg Loss: 2.0347
+Learning rate: 0.000200
+Batches 381-390/781: Avg Loss: 2.0435
+Learning rate: 0.000200
+Batches 391-400/781: Avg Loss: 2.0542
+Learning rate: 0.000200
+Batches 401-410/781: Avg Loss: 2.1062
+Learning rate: 0.000200
+Batches 411-420/781: Avg Loss: 2.0148
+Learning rate: 0.000200
+Batches 421-430/781: Avg Loss: 2.0112
+Learning rate: 0.000200
+Batches 431-440/781: Avg Loss: 2.0024
+Learning rate: 0.000200
+Batches 441-450/781: Avg Loss: 2.0802
+Learning rate: 0.000200
+Batches 451-460/781: Avg Loss: 2.0495
+Learning rate: 0.000200
+Batches 461-470/781: Avg Loss: 2.0800
+Learning rate: 0.000200
+Batches 471-480/781: Avg Loss: 2.0091
+Learning rate: 0.000200
+Batches 481-490/781: Avg Loss: 2.1138
+Learning rate: 0.000200
+Batches 491-500/781: Avg Loss: 2.0243
+Learning rate: 0.000200
+Batches 501-510/781: Avg Loss: 2.0788
+Learning rate: 0.000200
+Batches 511-520/781: Avg Loss: 2.0135
+Learning rate: 0.000200
+Batches 521-530/781: Avg Loss: 2.0302
+Learning rate: 0.000200
+Batches 531-540/781: Avg Loss: 2.0515
+Learning rate: 0.000200
+Batches 541-550/781: Avg Loss: 2.0467
+Learning rate: 0.000200
+Batches 551-560/781: Avg Loss: 2.0495
+Learning rate: 0.000200
+Batches 561-570/781: Avg Loss: 2.0717
+Learning rate: 0.000200
+Batches 571-580/781: Avg Loss: 2.0184
+Learning rate: 0.000200
+Batches 581-590/781: Avg Loss: 2.0162
+Learning rate: 0.000200
+Batches 591-600/781: Avg Loss: 2.0378
+Learning rate: 0.000200
+Batches 601-610/781: Avg Loss: 2.0161
+Learning rate: 0.000200
+Batches 611-620/781: Avg Loss: 2.1174
+Learning rate: 0.000200
+Batches 621-630/781: Avg Loss: 1.9562
+Learning rate: 0.000200
+Batches 631-640/781: Avg Loss: 2.0256
+Learning rate: 0.000200
+Batches 641-650/781: Avg Loss: 2.0203
+Learning rate: 0.000200
+Batches 651-660/781: Avg Loss: 1.9159
+Learning rate: 0.000200
+Batches 661-670/781: Avg Loss: 2.0336
+Learning rate: 0.000200
+Batches 671-680/781: Avg Loss: 2.0226
+Learning rate: 0.000200
+Batches 681-690/781: Avg Loss: 1.9978
+Learning rate: 0.000200
+Batches 691-700/781: Avg Loss: 2.0047
+Learning rate: 0.000200
+Batches 701-710/781: Avg Loss: 2.0527
+Learning rate: 0.000200
+Batches 711-720/781: Avg Loss: 2.0264
+Learning rate: 0.000200
+Batches 721-730/781: Avg Loss: 1.9713
+Learning rate: 0.000200
+Batches 731-740/781: Avg Loss: 2.1152
+Learning rate: 0.000200
+Batches 741-750/781: Avg Loss: 2.0416
+Learning rate: 0.000200
+Batches 751-760/781: Avg Loss: 1.9867
+Learning rate: 0.000200
+Batches 761-770/781: Avg Loss: 2.0670
+Learning rate: 0.000200
+Batches 771-780/781: Avg Loss: 2.0200
+Learning rate: 0.000200
+Epoch 1/1000 - Train Accuracy: 0.2931(14652/49984)
+Test Accuracy: 0.5273(5273/10000)
+Saved checkpoint to /hy-tmp/best_models/checkpoint_epoch_1_acc_0.5273.pth

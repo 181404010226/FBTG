@@ -2,7 +2,7 @@ import torch
 
 class GlobalVars:
     def __init__(self):
-        self.num_epochs = 1000
+        self.num_epochs = 300
         # self.input_size = (3, 224, 224)  # astroformer #RDNet
         self.input_size = (3, 32, 32)
         self.max_lr = 0.005
