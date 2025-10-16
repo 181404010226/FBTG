@@ -120,7 +120,7 @@ class SequentialDecisionTree(nn.Module):
         """清空缓存"""
         self.cached_outputs.clear()
 
-    def forward(self, x, batch_id=None):
+    def forward(self, x, batch_id=None, node_idx=None):
         final_outputs = torch.ones(x.size(0), 10, device=x.device)
         
         if self.training_mode == 'record':
@@ -137,24 +137,15 @@ class SequentialDecisionTree(nn.Module):
                 self.cache_outputs(batch_id, node_outputs)
                 
         elif self.training_mode == 'pipeline':
-            # 流水线模式：只训练当前节点，其他使用缓存
+            # 流水线模式：只训练当前节点，其他使用缓存或no_grad计算
             for i, node in enumerate(self.nodes):
                 if i == self.current_training_node:
                     # 当前训练的节点正常计算
                     outputs = node(x)
                 else:
-                    # 其他节点使用缓存输出
-                    if batch_id is not None:
-                        cached_output = self.get_cached_output(batch_id, i)
-                        if cached_output is not None:
-                            outputs = cached_output
-                        else:
-                            # 如果没有缓存，使用no_grad计算
-                            with torch.no_grad():
-                                outputs = node(x)
-                    else:
-                        with torch.no_grad():
-                            outputs = node(x)
+                    # 其他节点使用no_grad计算（batch级别不需要缓存）
+                    with torch.no_grad():
+                        outputs = node(x)
                 
                 for j, class_indices in enumerate(node.judge):
                     final_outputs[:, class_indices] *= outputs[:, j].unsqueeze(1)
