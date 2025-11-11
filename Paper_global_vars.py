@@ -2,11 +2,11 @@ import torch
 
 class GlobalVars:
     def __init__(self):
-        self.num_epochs = 1000
+        self.num_epochs = 300
         # self.input_size = (3, 224, 224)  # astroformer #RDNet
         self.input_size = (3, 32, 32)
         self.max_lr = 0.005
-        self.train_batch_size = 64 // torch.cuda.device_count()
+        self.train_batch_size = 64
         self.test_batch_size = 64
         
         # 新增配置

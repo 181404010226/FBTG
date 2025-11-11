@@ -95,7 +95,8 @@ def create_train_loader(dataset='cifar10', distributed=False):
     
     from functools import partial
     collate_fn = partial(collate_mixup_fn, mixup_fn=mixup_fn)
-    
+    mean = cifar10_mean if dataset == 'cifar10' else IMAGENET_DEFAULT_MEAN
+    std = cifar10_std if dataset == 'cifar10' else IMAGENET_DEFAULT_STD
     loader_train = create_loader(
         trainset,
         input_size=data_config['input_size'],
@@ -114,8 +115,8 @@ def create_train_loader(dataset='cifar10', distributed=False):
         auto_augment='rand-m9-mstd0.5-inc1',
         num_aug_splits=0,
         interpolation=data_config['interpolation'],
-        mean=data_config['mean'],
-        std=data_config['std'],
+        mean=mean,
+        std=std,
         num_workers=8,
         distributed=distributed,
         collate_fn=collate_fn,
@@ -126,6 +127,8 @@ def create_train_loader(dataset='cifar10', distributed=False):
 def create_valid_loader(dataset='cifar10', distributed=False):
     testset = _get_dataset(dataset, train=False)
     
+    mean = cifar10_mean if dataset == 'cifar10' else IMAGENET_DEFAULT_MEAN
+    std = cifar10_std if dataset == 'cifar10' else IMAGENET_DEFAULT_STD
     valid_data = create_loader(
         testset,
         input_size=data_config['input_size'],
@@ -133,8 +136,8 @@ def create_valid_loader(dataset='cifar10', distributed=False):
         is_training=False,
         use_prefetcher=False,
         interpolation=data_config['interpolation'],
-        mean=data_config['mean'],
-        std=data_config['std'],
+        mean=mean,
+        std=std,
         num_workers=8,
         distributed=distributed,
         pin_memory=True
