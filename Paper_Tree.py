@@ -24,14 +24,14 @@ class SequentialDecisionTree(nn.Module):
         self.cached_outputs = {}  # 缓存其他节点的输出
         
         self.nodes = nn.ModuleList([
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[0,1,8,9],[2,3,4,5,6,7]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[0,8],[1,9]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[0],[8]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[1],[9]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=3), judge=[[2,6],[3,5],[4,7]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[2],[6]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[3],[5]]),
-            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=1, n_classes=2), judge=[[4],[7]])
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=2, n_classes=2), judge=[[0,1,8,9],[2,3,4,5,6,7]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=2, n_classes=2), judge=[[0,8],[1,9]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=2, n_classes=2), judge=[[0],[8]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=2, n_classes=2), judge=[[1],[9]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=2, n_classes=3), judge=[[2,6],[3,5],[4,7]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=2, n_classes=2), judge=[[2],[6]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=2, n_classes=2), judge=[[3],[5]]),
+            DecisionNode(ConvMixer(dim=256, depth=8, kernel_size=5, patch_size=2, n_classes=2), judge=[[4],[7]])
         ])
 
     def set_training_mode(self, mode, node_idx=0):
@@ -46,12 +46,17 @@ class SequentialDecisionTree(nn.Module):
         self.current_training_node = node_idx
         
         if mode == 'pipeline':
-            # 在流水线模式下，只有当前训练的节点需要梯度
+            # 流水线模式：仅当前训练的节点开启梯度，其余关闭
             for i, node in enumerate(self.nodes):
                 for param in node.parameters():
                     param.requires_grad = (i == node_idx)
+        elif mode == 'record':
+            # 记录模式：关闭所有节点梯度，只做推理与缓存
+            for node in self.nodes:
+                for param in node.parameters():
+                    param.requires_grad = False
         else:
-            # 其他模式下，所有节点都需要梯度
+            # 正常模式：开启所有节点梯度
             for node in self.nodes:
                 for param in node.parameters():
                     param.requires_grad = True

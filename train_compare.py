@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+from torch.cuda.amp import autocast, GradScaler
+import contextlib
 
 from convmixer import ConvMixer
 from Paper_Tree import SequentialDecisionTree
@@ -162,6 +164,62 @@ def train_tree_global_loss(tree, loader, optimizers, criterion, device):
     return avg_global_loss, avg_node_losses
 
 
+def train_tree_pipeline_amp(model, loader_train, optimizer, device):
+    """
+    按批次依次训练每个节点；使用混合精度计算并对整树进行一次优化器更新（仅带梯度参数会更新）。
+    损失以最终输出经归一化的概率与 one-hot 目标计算交叉熵。
+    """
+    model.train()
+    scaler = GradScaler(enabled=(device.type == 'cuda'))
+    num_nodes = len(model.nodes)
+    batch_losses = []
+    train_correct = 0
+    train_total = 0
+
+    for batch_idx, (data, target_idx) in enumerate(loader_train):
+        data = data.to(device)
+        target_idx = target_idx.to(device)
+        target = torch.nn.functional.one_hot(target_idx, num_classes=10).float()
+
+        for node_idx in range(num_nodes):
+            model.set_training_mode('pipeline', node_idx)
+            amp_ctx = autocast() if device.type == 'cuda' else contextlib.nullcontext()
+            with amp_ctx:
+                outputs = model(data, batch_id=batch_idx, node_idx=node_idx)
+                denom = outputs.sum(dim=1, keepdim=True).clamp(min=1e-7)
+                normalized_probs = outputs / denom
+                batch_loss = torch.sum(-target * torch.log(normalized_probs + 1e-7), dim=-1).mean()
+
+            scaler.scale(batch_loss).backward()
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            scaler.step(optimizer)
+            scaler.update()
+            optimizer.zero_grad()
+
+            batch_losses.append(batch_loss.item())
+
+        # 计算训练准确率（使用最后一个节点后的整树输出）
+        model.set_training_mode('normal')
+        with torch.no_grad():
+            final_outputs = model(data)
+            predicted_labels = final_outputs.argmax(dim=1)
+            train_correct += (predicted_labels == target_idx).sum().item()
+            train_total += data.size(0)
+
+        if (batch_idx + 1) % 10 == 0:
+            recent = batch_losses[-10 * num_nodes:]
+            if len(recent) > 0:
+                avg_loss = sum(recent) / len(recent)
+                print(f"Batches {max(0, batch_idx-8)}-{batch_idx+1}/{len(loader_train)}: Avg Loss: {avg_loss:.4f}")
+            batch_losses = []
+
+    train_acc = train_correct / max(1, train_total)
+    # 若 batch_losses 被清空，avg_loss_overall 不体现汇总；这里返回 0 以避免误导。
+    avg_loss_overall = 0.0
+    return avg_loss_overall, train_acc
+
+
 def main():
     device = get_device()
     train_loader, test_loader = get_loaders(global_vars.train_batch_size)
@@ -173,7 +231,7 @@ def main():
 
     # Tree model
     tree = SequentialDecisionTree().to(device)
-    tree_opts = [optim.AdamW(node.parameters(), lr=global_vars.max_lr) for node in tree.nodes]
+    tree_opt = optim.AdamW(tree.parameters(), lr=global_vars.max_lr)
 
     epochs = min(25, global_vars.num_epochs)
 
@@ -189,10 +247,10 @@ def main():
     for epoch in range(1, epochs + 1):
         print(f'Epoch {epoch}/{epochs}')
         t1 = time.time()
-        global_loss, node_losses = train_tree_global_loss(tree, train_loader, tree_opts, ce, device)
+        train_loss_tree, train_acc_tree = train_tree_pipeline_amp(tree, train_loader, tree_opt, device)
         t2 = time.time()
-        tree_acc = evaluate_tree(tree, test_loader, device)
-        print(f'  Tree:     global_loss={global_loss:.4f} node_losses={[round(l,4) for l in node_losses]} acc={tree_acc:.4f} time={(t2-t1):.2f}s')
+        test_acc_tree = evaluate_tree(tree, test_loader, device)
+        print(f'  Tree:     train_acc={train_acc_tree:.4f} test_acc={test_acc_tree:.4f} time={(t2-t1):.2f}s')
     
     print('Done.')
 
